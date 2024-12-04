@@ -1,4 +1,4 @@
-import { ExceptionFilter, Catch, ArgumentsHost, BadRequestException } from '@nestjs/common'
+import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { Response } from 'express'
 
@@ -8,19 +8,18 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
         const ctx = host.switchToHttp()
         const response = ctx.getResponse<Response>()
 
-        if (exception.code === 'P2002') {
-            const target = exception.meta?.target
-            if (target && typeof target === 'string' && target.includes('email')) {
-                return response.status(400).json({
-                    statusCode: 400,
+        switch (exception.code) {
+            case 'P2002':
+                return response.status(HttpStatus.CONFLICT).json({
+                    statusCode: HttpStatus.CONFLICT,
                     message: 'The email address is already in use.',
                 })
-            }
+            default:
+                console.error('Unhandled Prisma exception:', exception)
+                return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                    message: 'Internal server error.',
+                })
         }
-
-        return response.status(500).json({
-            statusCode: 500,
-            message: 'Internal server error.',
-        })
     }
 }

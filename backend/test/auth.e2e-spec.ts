@@ -39,52 +39,31 @@ describe('Authentication (e2e)', () => {
             return request(app.getHttpServer())
                 .post('/auth/register')
                 .send({ email: 'newuser@example.com', password: 'somepassword' })
-                .expect(400)
+                .expect(409)
+                .then((response) => {
+                    expect(response.body.message).toBe('The email address is already in use.')
+                })
         })
     })
 
-    // describe('POST /auth/login', () => {
-    //     it.only('should authenticate user and return JWT token', () => {
-    //         return request(app.getHttpServer())
-    //             .post('/auth/login')
-    //             .send({ email: 'testuser@example.com', password: 'password123' })
-    //             .expect(200)
-    //             .expect((res) => {
-    //                 expect(res.body.access_token).toBeDefined()
-    //             })
-    //     })
+    describe('POST /auth/login', () => {
+        it('should authenticate user and return JWT token', async () => {
+            await insertDataset('users', 'auth_1')
 
-    //     it('should fail with incorrect credentials', () => {
-    //         return request(app.getHttpServer())
-    //             .post('/auth/login')
-    //             .send({ email: 'testuser@example.com', password: 'wrongpassword' })
-    //             .expect(401)
-    //     })
-    // })
+            return request(app.getHttpServer())
+                .post('/auth/login')
+                .send({ email: 'newuser@example.com', password: 'newpassword123' })
+                .expect(200)
+                .expect((res) => {
+                    expect(res.body.access_token).toBeDefined()
+                })
+        })
 
-    // describe('GET /auth/profile', () => {
-    //     let jwtToken: string
-
-    //     beforeEach(async () => {
-    //         const loginResponse = await request(app.getHttpServer())
-    //             .post('/auth/login')
-    //             .send({ email: 'testuser@example.com', password: 'password123' })
-    //         jwtToken = loginResponse.body.access_token
-    //     })
-
-    //     it('should get user profile when authenticated', () => {
-    //         return request(app.getHttpServer())
-    //             .get('/auth/profile')
-    //             .set('Authorization', `Bearer ${jwtToken}`)
-    //             .expect(200)
-    //             .expect((res) => {
-    //                 expect(res.body.email).toBe('testuser@example.com')
-    //                 expect(res.body.role).toBe('USER')
-    //             })
-    //     })
-
-    //     it('should fail to get profile when not authenticated', () => {
-    //         return request(app.getHttpServer()).get('/auth/profile').expect(401)
-    //     })
-    // })
+        it('should fail with incorrect credentials', () => {
+            return request(app.getHttpServer())
+                .post('/auth/login')
+                .send({ email: 'testuser@example.com', password: 'wrongpassword' })
+                .expect(401)
+        })
+    })
 })
