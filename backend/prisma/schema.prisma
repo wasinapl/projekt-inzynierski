@@ -8,14 +8,87 @@ generator client {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  name     String?
-  password String
-  role     Role    @default(USER)
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  name         String?
+  password     String
+  role         Role           @default(USER)
+  Document     Document[]
+  DocumentsSet DocumentsSet[]
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+model DocumentsSet {
+  id         Int          @id @default(autoincrement())
+  name       String
+  User       User?        @relation(fields: [userId], references: [id])
+  userId     Int?
+  documents  Document[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  ChatThread ChatThread[]
+}
+
+enum DocumentStatus {
+  CREATED
+  PROCESSING
+  FAILED
+  READY
+}
+
+model Document {
+  id             Int            @id @default(autoincrement())
+  title          String
+  content        String
+  documentsSetId Int
+  documentsSet   DocumentsSet   @relation(fields: [documentsSetId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  User           User           @relation(fields: [userId], references: [id])
+  userId         Int
+  DocumentPart   DocumentPart[]
+  Status         DocumentStatus @default(CREATED)
+}
+
+enum DocumentPartStatus {
+  CREATED
+  PROCESSING
+  FAILED
+  READY
+}
+
+model DocumentPart {
+  id                    Int                    @id @default(autoincrement())
+  content               String
+  documentId            Int
+  Document              Document               @relation(fields: [documentId], references: [id])
+  DocumentPartEmbedding DocumentPartEmbedding?
+}
+
+model DocumentPartEmbedding {
+  id             Int          @id @default(autoincrement())
+  documentPartId Int          @unique
+  documentPart   DocumentPart @relation(fields: [documentPartId], references: [id])
+  vector         Json
+}
+
+model ChatThread {
+  id            Int          @id @default(autoincrement())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  messages      Message[]
+  documentSetId Int
+  DocumentSet   DocumentsSet @relation(fields: [documentSetId], references: [id])
+}
+
+model Message {
+  id           Int        @id @default(autoincrement())
+  content      String
+  createdAt    DateTime   @default(now())
+  ChatThread   ChatThread @relation(fields: [chatThreadId], references: [id])
+  chatThreadId Int
 }
