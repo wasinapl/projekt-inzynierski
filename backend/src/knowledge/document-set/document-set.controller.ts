@@ -8,11 +8,13 @@ import {
     Put,
     UseGuards,
     Request,
+    UsePipes,
+    ValidationPipe,
 } from '@nestjs/common';
 import { DocumentSetService } from './document-set.service';
 import { CreateDocumentSetDto } from './dto/create-document-set.dto';
 import { UpdateDocumentSetDto } from './dto/update-document-set.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from './../../auth/jwt-auth.guard';
 
 @Controller('document-sets')
 @UseGuards(JwtAuthGuard)
@@ -20,6 +22,7 @@ export class DocumentSetController {
     constructor(private documentSetService: DocumentSetService) {}
 
     @Post()
+    @UsePipes(new ValidationPipe())
     create(@Request() req, @Body() data: CreateDocumentSetDto) {
         return this.documentSetService.createDocumentSet({
             ...data,

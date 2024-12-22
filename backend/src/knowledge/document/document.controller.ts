@@ -17,7 +17,7 @@ import { CreateDocumentFromTextDto } from './dto/create-document-from-text.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { CreateDocumentFromFileDto } from './dto/create-document-from-file.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from './../../auth/jwt-auth.guard';
 
 @Controller('documents')
 @UseGuards(JwtAuthGuard)
