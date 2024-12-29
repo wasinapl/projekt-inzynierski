@@ -14,12 +14,7 @@ export class DocumentService {
 
     async createDocumentFromText(data: CreateDocumentFromTextDto) {
         return this.prisma.document.create({
-            data: {
-                documentsSetId: data.documentsSetId,
-                title: data.title,
-                content: data.content,
-                userId: data.userId,
-            },
+            data,
         });
     }
 
@@ -29,12 +24,8 @@ export class DocumentService {
     ) {
         const extractedText = await this.fileToTextService.extractText(file);
         return this.prisma.document.create({
-            data: {
-                documentsSetId: data.documentsSetId,
-                title: data.title,
-                content: extractedText,
-                userId: data.userId,
-            },
+            ...data,
+            content: extractedText,
         });
     }
 

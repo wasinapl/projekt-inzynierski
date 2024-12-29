@@ -1,8 +1,9 @@
 import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
 
 export class CreateDocumentFromTextDto {
-    @IsNumber()
-    documentsSetId: number;
+    @IsString()
+    @IsNotEmpty()
+    documentsSetCode: string;
 
     @IsString()
     @IsNotEmpty()
