@@ -1,8 +1,11 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common'
-import { PrismaClient } from '@prisma/client'
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService
+    extends PrismaClient
+    implements OnModuleInit, OnModuleDestroy
+{
     constructor() {
         super({
             datasources: {
@@ -10,22 +13,24 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                     url: process.env.DATABASE_URL,
                 },
             },
-        })
+        });
     }
 
     async onModuleInit() {
-        await this.$connect()
+        await this.$connect();
     }
 
     async onModuleDestroy() {
-        await this.$disconnect()
+        await this.$disconnect();
     }
 
     async cleanDatabase() {
         // Optional: Utility for clearing the database between tests
-        const tables = await this.$queryRaw<Array<{ tablename: string }>>`SHOW TABLES`
+        const tables = await this.$queryRaw<
+            Array<{ tablename: string }>
+        >`SHOW TABLES`;
         for (const table of tables) {
-            await this.$executeRawUnsafe(`TRUNCATE ${table.tablename}`)
+            await this.$executeRawUnsafe(`TRUNCATE ${table.tablename}`);
         }
     }
 }

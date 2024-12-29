@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common'
-import { PrismaService } from '../prisma/prisma.service'
-import { JwtService } from '@nestjs/jwt'
-import * as bcrypt from 'bcrypt'
-import { User } from '@prisma/client'
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -12,19 +12,19 @@ export class AuthService {
     ) {}
 
     async validateUser(email: string, pass: string): Promise<any> {
-        const user = await this.prisma.user.findUnique({ where: { email } })
+        const user = await this.prisma.user.findUnique({ where: { email } });
         if (user && (await bcrypt.compare(pass, user.password))) {
-            const { password, ...result } = user
-            return result
+            const { password, ...result } = user;
+            return result;
         }
-        return null
+        return null;
     }
 
     async login(user: any) {
-        const payload = { email: user.email, sub: user.id, role: user.role }
+        const payload = { email: user.email, sub: user.id, role: user.role };
         return {
             access_token: this.jwtService.sign(payload),
-        }
+        };
     }
 
     async register(
@@ -32,7 +32,7 @@ export class AuthService {
         password: string,
         name: string = 'New User'
     ): Promise<Omit<User, 'password'>> {
-        const hashedPassword = await bcrypt.hash(password, 10)
+        const hashedPassword = await bcrypt.hash(password, 10);
         const user = await this.prisma.user.create({
             data: {
                 email,
@@ -40,9 +40,9 @@ export class AuthService {
                 name,
                 role: 'USER',
             },
-        })
+        });
 
-        const { password: _, ...result } = user
-        return result
+        const { password: _, ...result } = user;
+        return result;
     }
 }
