@@ -51,34 +51,30 @@ export class DocumentController {
     @Get()
     getDocumentsBySet(
         @Request() req,
-        @Query('documentsSetId') documentsSetId: number
+        @Query('documentsSetCode') documentsSetCode: string
     ) {
         return this.documentService.getDocumentsBySet(
-            Number(documentsSetId),
+            documentsSetCode,
             req.user.id
         );
     }
 
-    @Get(':id')
-    getOne(@Request() req, @Param('id') id: number) {
-        return this.documentService.getDocumentById(Number(id), req.user.id);
+    @Get(':code')
+    getOne(@Request() req, @Param('code') code: string) {
+        return this.documentService.getDocumentByCode(code, req.user.id);
     }
 
-    @Put(':id')
+    @Put(':code')
     update(
         @Request() req,
-        @Param('id') id: number,
+        @Param('code') code: string,
         @Body() data: UpdateDocumentDto
     ) {
-        return this.documentService.updateDocument(
-            Number(id),
-            data,
-            req.user.id
-        );
+        return this.documentService.updateDocument(code, data, req.user.id);
     }
 
-    @Delete(':id')
-    delete(@Request() req, @Param('id') id: number) {
-        return this.documentService.deleteDocument(Number(id), req.user.id);
+    @Delete(':code')
+    delete(@Request() req, @Param('code') code: string) {
+        return this.documentService.deleteDocument(code, req.user.id);
     }
 }
