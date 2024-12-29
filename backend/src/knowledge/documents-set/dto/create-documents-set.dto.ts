@@ -1,10 +1,10 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateDocumentSetDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
+    @IsNotEmpty()
+    @IsString()
+    name: string;
 
-  @IsOptional()
-  userId?: number;
+    @IsOptional()
+    userId?: number;
 }

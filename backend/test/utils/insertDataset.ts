@@ -1,68 +1,72 @@
-import { PrismaClient, Prisma } from '@prisma/client';
-import * as fs from 'fs';
+import { PrismaClient } from '@prisma/client';
 import * as path from 'path';
+import { promises as fs } from 'fs';
 
 const prisma = new PrismaClient();
 
-/**
- * Mapping of table names to Prisma models.
- * Extend this mapping based on your Prisma schema.
- */
-const tableToModelMap: { [key: string]: keyof PrismaClient } = {
-    user: 'user',
-    documentsSet: 'documentsSet',
-};
+const TABLE_INSERT_ORDER = [
+    'User',
+    'DocumentsSet',
+    'Document',
+    'DocumentPart',
+    'DocumentPartEmbedding',
+    'ChatThread',
+    'Message',
+];
 
 /**
- * Inserts a dataset into a specified table using Prisma's Client API.
- *
- * @param table - The name of the table (as defined in tableToModelMap).
- * @param dataset - The name of the dataset file (without extension).
+ * Reads SQL from "datasets/{table}/{dataset}.sql"
+ * executes all statements in the SQL.
  */
 export const insertDataset = async (table: string, dataset: string) => {
-    const model = tableToModelMap[table];
-
-    if (!model) {
-        throw new Error(
-            `Model for table "${table}" is not defined in tableToModelMap.`
-        );
-    }
-
-    const filePath = path.join(
-        __dirname,
-        '..',
-        'datasets',
-        table,
-        `${dataset}.json`
-    );
-
     try {
-        if (!fs.existsSync(filePath)) {
-            throw new Error(`Dataset file not found: ${filePath}`);
+        const filePath = path.join(
+            __dirname,
+            '..', // go up one level
+            'datasets',
+            table,
+            `${dataset}.sql`
+        );
+
+        const fileContent = await fs.readFile(filePath, 'utf-8');
+
+        const statements = fileContent
+            .split(';')
+            .map((stmt) => stmt.trim())
+            .filter((stmt) => stmt.length > 0);
+
+        for (const statement of statements) {
+            await prisma.$executeRawUnsafe(statement);
         }
-
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        const data = JSON.parse(fileContent);
-
-        if (!Array.isArray(data)) {
-            throw new Error(
-                `Dataset file must contain a JSON array: ${filePath}`
-            );
-        }
-
-        // Type assertion to handle dynamic model names
-        // This assumes that the data shape matches the Prisma model
-        await (prisma as any)[model].createMany({
-            data,
-            skipDuplicates: true, // Optional: skip inserting duplicates based on unique constraints
-        });
-
-        // console.log(`Dataset "${dataset}" inserted into "${table}" successfully.`)
     } catch (error) {
         console.error(
-            `Error inserting dataset "${dataset}" into "${table}":`,
+            `Error while inserting dataset '${dataset}' into table '${table}':`,
             error
         );
         throw error;
     }
 };
+
+export async function insertDatasets(
+    datasets: Array<[table: string, dataset: string]>
+) {
+    const sorted = reorderDatasets(datasets);
+
+    for (const [table, dataset] of sorted) {
+        await insertDataset(table, dataset);
+    }
+}
+
+function reorderDatasets(
+    datasets: Array<[table: string, dataset: string]>
+): Array<[table: string, dataset: string]> {
+    const ordered: Array<[string, string]> = [];
+
+    for (const table of TABLE_INSERT_ORDER) {
+        const matches = datasets.filter(([t]) => t === table);
+
+        ordered.push(...matches);
+    }
+
+    return ordered;
+}

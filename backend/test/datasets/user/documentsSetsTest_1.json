@@ -1,9 +1,0 @@
-[
-    {
-        "id": 1,
-        "email": "newuser@example.com",
-        "name": "New User",
-        "password": "$2b$10$u9I8Vp9U26FPKUpyquvvSeIg40uF6PALF7MwBBx4mxn3dqRfFWjky",
-        "role": "USER"
-    }
-]
