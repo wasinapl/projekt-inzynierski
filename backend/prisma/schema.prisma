@@ -52,7 +52,7 @@ model Document {
   id             Int            @id @default(autoincrement())
   code           String         @unique
   title          String
-  content        String
+  content        String         @db.Text
   documentsSetId Int
   documentsSet   DocumentsSet   @relation(fields: [documentsSetId], references: [id], onDelete: Cascade)
   userId         Int
@@ -66,7 +66,7 @@ model Document {
 
 model DocumentPart {
   id                    Int                    @id @default(autoincrement())
-  content               String
+  content               String                 @db.Text
   tokens                Int
   documentId            Int
   Document              Document               @relation(fields: [documentId], references: [id], onDelete: Cascade)
