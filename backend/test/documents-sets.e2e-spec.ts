@@ -24,12 +24,10 @@ describe('document sets (e2e)', () => {
 
         await insertDatasets([['User', 'documentsSetsTest_1']]);
 
-        access_token = await request(app.getHttpServer())
+        const response = await request(app.getHttpServer())
             .post('/auth/login')
-            .send({ email: 'newuser@example.com', password: 'newpassword123' })
-            .then((res) => {
-                return res.body.access_token;
-            });
+            .send({ email: 'newuser@example.com', password: 'newpassword123' });
+        access_token = response.body.access_token;
     });
 
     beforeEach(async () => {
@@ -37,6 +35,7 @@ describe('document sets (e2e)', () => {
     });
 
     afterAll(async () => {
+        await prisma.$disconnect();
         await app.close();
     });
 
@@ -63,7 +62,10 @@ describe('document sets (e2e)', () => {
 
     describe('POST /document-sets', () => {
         it('should create a new document set', async () => {
-            await insertDatasets([['User', 'documentsSetsTest_1']]);
+            await insertDatasets([
+                ['User', 'documentsSetsTest_1'],
+                ['DocumentsSet', 'empty'],
+            ]);
 
             const response = await request(app.getHttpServer())
                 .post('/document-sets')

@@ -17,7 +17,7 @@
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json --maxWorkers=1",
+        "test:e2e": "jest --config ./test/jest-e2e.json --maxWorkers=1 --detectOpenHandles",
         "prisma:migrate:dev": "prisma migrate dev",
         "prisma:migrate:test": "cross-env-shell \"DATABASE_URL=$(type .env.test | findstr DATABASE_URL | cut -d '=' -f2-)\" prisma migrate deploy"
     },
@@ -43,7 +43,8 @@
         "pdf-parse": "^1.1.1",
         "pptxgenjs": "^3.12.0",
         "reflect-metadata": "^0.2.2",
-        "rxjs": "^7.8.1"
+        "rxjs": "^7.8.1",
+        "tiktoken": "^1.0.18"
     },
     "devDependencies": {
         "@nestjs/cli": "^10.4.7",

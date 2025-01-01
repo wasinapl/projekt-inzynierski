@@ -4,11 +4,15 @@ import { CreateDocumentFromTextDto } from './dto/create-document-from-text.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { CreateDocumentFromFileDto } from './dto/create-document-from-file.dto';
 import { FileToTextService } from '../utils/file-to-text.service';
+import { DocumentType } from '@prisma/client';
 import { DocumentDto } from './dto/document.dto';
 import { plainToInstance } from 'class-transformer';
+import { DocumentFromSetDto } from './dto/document-from-set.dto';
 
 @Injectable()
 export class DocumentService {
+    private readonly DOCUMENT_PART_TOKENS = 500;
+
     constructor(
         private prisma: PrismaService,
         private fileToTextService: FileToTextService
@@ -34,10 +38,20 @@ export class DocumentService {
                 content: data.content,
                 documentsSetId: documentsSet.id,
                 userId: data.userId,
+                type: DocumentType.TEXT,
             },
         });
 
-        return plainToInstance(DocumentDto, document);
+        const createPartResults = await this.createDocumentPartsFromText(
+            document.content,
+            document.id
+        );
+
+        if (!createPartResults) {
+            throw new Error('Failed to create document parts');
+        }
+
+        return new DocumentDto(document);
     }
 
     async createDocumentFromFile(
@@ -46,7 +60,7 @@ export class DocumentService {
     ) {
         const code = require('crypto').randomBytes(8).toString('hex');
 
-        const documentsSet = await this.prisma.documentsSet.findUnique({
+        const documentsSet = await this.prisma.document.findUnique({
             where: { code: data.documentsSetCode, userId: data.userId },
         });
 
@@ -71,6 +85,10 @@ export class DocumentService {
     }
 
     async getDocumentsBySet(documentsSetCode: string, userId: number) {
+        if (!documentsSetCode) {
+            throw new NotFoundException(`Documents set code not found`);
+        }
+
         const documentsSet = await this.prisma.documentsSet.findUnique({
             where: { code: documentsSetCode, userId },
         });
@@ -85,7 +103,7 @@ export class DocumentService {
             where: { documentsSetId: documentsSet.id, userId },
         });
 
-        return plainToInstance(DocumentDto, documents);
+        return plainToInstance(DocumentFromSetDto, documents);
     }
 
     async getDocumentByCode(code: string, userId: number) {
@@ -131,5 +149,74 @@ export class DocumentService {
         }
 
         return this.prisma.document.delete({ where: { code, userId } });
+    }
+
+    // helper functions
+    async createDocumentPartsFromText(
+        content: string,
+        documentId: number
+    ): Promise<boolean> {
+        try {
+            const parts = await this.createParts(content);
+
+            await this.prisma.documentPart.createMany({
+                data: parts.map((part) => ({
+                    content: part.text,
+                    tokens: part.tokens,
+                    documentId,
+                })),
+            });
+
+            return true;
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    }
+
+    async createParts(
+        content: string
+    ): Promise<{ text: string; tokens: number }[]> {
+        const sentences = content.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+
+        const parts: { text: string; tokens: number }[] = [];
+        let currentPart = '';
+        let currentPartTokenCount = 0;
+
+        for (const sentence of sentences) {
+            const sentenceTokenCount = await this.countTokens(sentence);
+
+            if (
+                currentPartTokenCount + sentenceTokenCount >
+                this.DOCUMENT_PART_TOKENS
+            ) {
+                if (currentPart.trim()) {
+                    parts.push({
+                        text: currentPart.trim(),
+                        tokens: currentPartTokenCount,
+                    });
+                }
+                currentPart = sentence;
+                currentPartTokenCount = sentenceTokenCount;
+            } else {
+                currentPart += sentence;
+                currentPartTokenCount += sentenceTokenCount;
+            }
+        }
+
+        if (currentPart.trim()) {
+            parts.push({
+                text: currentPart.trim(),
+                tokens: currentPartTokenCount,
+            });
+        }
+
+        return parts;
+    }
+
+    async countTokens(text: string) {
+        const charCount = text.length;
+        const tokenEstimate = Math.ceil(charCount / 4);
+        return tokenEstimate;
     }
 }

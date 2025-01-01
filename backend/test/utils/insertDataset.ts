@@ -30,6 +30,10 @@ export const insertDataset = async (table: string, dataset: string) => {
 
         const fileContent = await fs.readFile(filePath, 'utf-8');
 
+        if (!fileContent) {
+            return;
+        }
+
         const statements = fileContent
             .split(';')
             .map((stmt) => stmt.trim())
