@@ -67,6 +67,7 @@ model Document {
 model DocumentPart {
   id                    Int                    @id @default(autoincrement())
   content               String
+  tokens                Int
   documentId            Int
   Document              Document               @relation(fields: [documentId], references: [id], onDelete: Cascade)
   DocumentPartEmbedding DocumentPartEmbedding?
