@@ -5,8 +5,6 @@ import { AppModule } from '../src/app.module';
 import { cleanDatabase } from './utils/database';
 import { insertDatasets } from './utils/insertDataset';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { title } from 'process';
-import { stat } from 'fs';
 
 describe('documents (e2e)', () => {
     let app: INestApplication;

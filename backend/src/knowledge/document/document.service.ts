@@ -55,7 +55,7 @@ export class DocumentService {
         }
 
         for (const partId of createPartResults) {
-            await this.documentQueue.add('process-part', {
+            await this.documentQueue.add('document-queue', {
                 documentId: document.id,
                 partId,
             });

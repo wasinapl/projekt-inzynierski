@@ -6,9 +6,11 @@ import { DocumentController } from './document/document.controller';
 import { PrismaService } from '../prisma/prisma.service';
 import { FileToTextService } from './utils/file-to-text.service';
 import { DocumentPartProcessor } from './document/document-part.processor';
+import { QueuesModule } from './../queues/queues.module';
+import { OpenAIModule } from './../openai/openai.module';
 
 @Module({
-    imports: [],
+    imports: [QueuesModule, OpenAIModule],
     providers: [
         PrismaService,
         DocumentsSetService,
