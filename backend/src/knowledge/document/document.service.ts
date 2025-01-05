@@ -8,6 +8,8 @@ import { DocumentType } from '@prisma/client';
 import { DocumentDto } from './dto/document.dto';
 import { plainToInstance } from 'class-transformer';
 import { DocumentFromSetDto } from './dto/document-from-set.dto';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class DocumentService {
@@ -15,7 +17,8 @@ export class DocumentService {
 
     constructor(
         private prisma: PrismaService,
-        private fileToTextService: FileToTextService
+        private fileToTextService: FileToTextService,
+        @InjectQueue('document-queue') private documentQueue: Queue
     ) {}
 
     async createDocumentFromText(data: CreateDocumentFromTextDto) {
@@ -47,8 +50,15 @@ export class DocumentService {
             document.id
         );
 
-        if (!createPartResults) {
+        if (!createPartResults.length) {
             throw new Error('Failed to create document parts');
+        }
+
+        for (const partId of createPartResults) {
+            await this.documentQueue.add('process-part', {
+                documentId: document.id,
+                partId,
+            });
         }
 
         return plainToInstance(DocumentDto, document, {
@@ -178,22 +188,28 @@ export class DocumentService {
     async createDocumentPartsFromText(
         content: string,
         documentId: number
-    ): Promise<boolean> {
+    ): Promise<number[]> {
         try {
             const parts = await this.createParts(content);
 
-            await this.prisma.documentPart.createMany({
+            const createdParts = await this.prisma.documentPart.createMany({
                 data: parts.map((part) => ({
                     content: part.text,
                     tokens: part.tokens,
                     documentId,
                 })),
+                skipDuplicates: true,
             });
 
-            return true;
+            const insertedParts = await this.prisma.documentPart.findMany({
+                where: { documentId },
+                select: { id: true },
+            });
+
+            return insertedParts.map((part) => part.id);
         } catch (error) {
             console.error(error);
-            return false;
+            return [];
         }
     }
 

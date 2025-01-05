@@ -5,6 +5,7 @@ import { DocumentService } from './document/document.service';
 import { DocumentController } from './document/document.controller';
 import { PrismaService } from '../prisma/prisma.service';
 import { FileToTextService } from './utils/file-to-text.service';
+import { DocumentPartProcessor } from './document/document-part.processor';
 
 @Module({
     imports: [],
@@ -13,6 +14,7 @@ import { FileToTextService } from './utils/file-to-text.service';
         DocumentsSetService,
         DocumentService,
         FileToTextService,
+        DocumentPartProcessor,
     ],
     controllers: [DocumentsSetController, DocumentController],
 })
