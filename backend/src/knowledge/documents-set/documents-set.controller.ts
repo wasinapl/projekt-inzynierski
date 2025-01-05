@@ -17,7 +17,7 @@ import { CreateDocumentSetDto } from './dto/create-documents-set.dto';
 import { UpdateDocumentSetDto } from './dto/update-documents-set.dto';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
-@Controller('document-sets')
+@Controller('documents-sets')
 @UseGuards(JwtAuthGuard)
 export class DocumentsSetController {
     constructor(private documentsSetService: DocumentsSetService) {}

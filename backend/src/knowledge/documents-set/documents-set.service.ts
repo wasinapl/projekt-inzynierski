@@ -19,21 +19,35 @@ export class DocumentsSetService {
                 userId: data.userId,
             },
         });
-        return plainToInstance(DocumentsSetDto, documentsSet);
+
+        return plainToInstance(DocumentsSetDto, documentsSet, {
+            excludeExtraneousValues: true,
+        });
     }
 
     async getDocumentsSets(userId: number) {
         const documentsSets = await this.prisma.documentsSet.findMany({
             where: { userId },
+            include: {
+                documents: true,
+            },
         });
-        return plainToInstance(DocumentsSetDto, documentsSets);
+        return plainToInstance(DocumentsSetDto, documentsSets, {
+            excludeExtraneousValues: true,
+        });
     }
 
     async getDocumentsSetByCode(code: string, userId: number) {
         const documentsSet = await this.prisma.documentsSet.findUnique({
             where: { code, userId },
+            include: {
+                documents: true,
+            },
         });
-        return plainToInstance(DocumentsSetDto, documentsSet);
+
+        return plainToInstance(DocumentsSetDto, documentsSet, {
+            excludeExtraneousValues: true,
+        });
     }
 
     async updateDocumentsSet(
@@ -56,7 +70,9 @@ export class DocumentsSetService {
             data,
         });
 
-        return plainToInstance(DocumentsSetDto, updatedDocumentsSet);
+        return plainToInstance(DocumentsSetDto, updatedDocumentsSet, {
+            excludeExtraneousValues: true,
+        });
     }
 
     async deleteDocumentsSet(code: string, userId: number) {

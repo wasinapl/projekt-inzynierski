@@ -51,7 +51,9 @@ export class DocumentService {
             throw new Error('Failed to create document parts');
         }
 
-        return new DocumentDto(document);
+        return plainToInstance(DocumentDto, document, {
+            excludeExtraneousValues: true,
+        });
     }
 
     async createDocumentFromFile(
@@ -81,7 +83,9 @@ export class DocumentService {
             },
         });
 
-        return plainToInstance(DocumentDto, document);
+        return plainToInstance(DocumentDto, document, {
+            excludeExtraneousValues: true,
+        });
     }
 
     async getDocumentsBySet(documentsSetCode: string, userId: number) {
@@ -103,7 +107,9 @@ export class DocumentService {
             where: { documentsSetId: documentsSet.id, userId },
         });
 
-        return plainToInstance(DocumentFromSetDto, documents);
+        return plainToInstance(DocumentFromSetDto, documents, {
+            excludeExtraneousValues: true,
+        });
     }
 
     async getDocumentByCode(code: string, userId: number) {
@@ -115,7 +121,9 @@ export class DocumentService {
             throw new NotFoundException(`Document with code ${code} not found`);
         }
 
-        return plainToInstance(DocumentDto, document);
+        return plainToInstance(DocumentDto, document, {
+            excludeExtraneousValues: true,
+        });
     }
 
     async updateDocument(
@@ -136,7 +144,22 @@ export class DocumentService {
             data,
         });
 
-        return plainToInstance(DocumentDto, updatedDocument);
+        await this.prisma.documentPart.deleteMany({
+            where: { documentId: updatedDocument.id },
+        });
+
+        const createPartResults = await this.createDocumentPartsFromText(
+            updatedDocument.content,
+            updatedDocument.id
+        );
+
+        if (!createPartResults) {
+            throw new Error('Failed to create document parts');
+        }
+
+        return plainToInstance(DocumentDto, updatedDocument, {
+            excludeExtraneousValues: true,
+        });
     }
 
     async deleteDocument(code: string, userId: number) {

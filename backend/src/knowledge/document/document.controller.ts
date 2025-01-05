@@ -74,7 +74,8 @@ export class DocumentController {
     }
 
     @Delete(':code')
-    delete(@Request() req, @Param('code') code: string) {
-        return this.documentService.deleteDocument(code, req.user.id);
+    async delete(@Request() req, @Param('code') code: string) {
+        await this.documentService.deleteDocument(code, req.user.id);
+        return { message: 'Document deleted successfully' };
     }
 }
