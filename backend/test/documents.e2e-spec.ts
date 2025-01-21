@@ -5,14 +5,24 @@ import { AppModule } from '../src/app.module';
 import { cleanDatabase } from './utils/database';
 import { insertDatasets } from './utils/insertDataset';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { Queue, QueueEvents } from 'bullmq';
 
 describe('documents (e2e)', () => {
     let app: INestApplication;
     let access_token: string;
     let prisma: PrismaService;
+    let queueEvents: QueueEvents;
+    let myQueue: Queue;
 
     beforeAll(async () => {
         await cleanDatabase();
+
+        queueEvents = new QueueEvents('document-queue', {
+            connection: { host: 'localhost', port: 6379 },
+        });
+        myQueue = new Queue('document-queue', {
+            connection: { host: 'localhost', port: 6379 },
+        });
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
@@ -32,9 +42,12 @@ describe('documents (e2e)', () => {
 
     beforeEach(async () => {
         await cleanDatabase();
+        await myQueue.obliterate({ force: true });
     });
 
     afterAll(async () => {
+        await queueEvents.close();
+        await myQueue.close();
         await prisma.$disconnect();
         await app.close();
     });
@@ -70,6 +83,11 @@ describe('documents (e2e)', () => {
                 ['User', 'documentsTest_1'],
                 ['DocumentsSet', 'documentsTest_1'],
             ]);
+
+            const waitingJobs: any[] = [];
+            queueEvents.on('waiting', ({ jobId }) => {
+                waitingJobs.push(jobId);
+            });
 
             const response = await request(app.getHttpServer())
                 .post('/documents/from-text')
@@ -116,6 +134,8 @@ describe('documents (e2e)', () => {
             expect(createdDocumentParts[1].content).toBe(
                 'Phasellus sed sapien sit amet nunc dictum lobortis et eu felis. In eget risus et quam ullamcorper efficitur eu vel neque. Proin congue, ante quis pharetra congue, nunc libero vulputate neque, id venenatis felis diam a augue. Donec porta odio quam, id pellentesque velit finibus a. Sed at tristique enim. Nam luctus in mauris a malesuada. Cras pulvinar lacinia diam, et sollicitudin purus ultrices eu. Nunc iaculis diam eu risus tincidunt blandit. Nulla iaculis bibendum mattis. Nunc luctus risus semper suscipit fermentum. Phasellus eleifend lacus vitae eleifend eleifend. Vivamus ut dui semper, vestibulum sem eget, commodo leo. Fusce lorem metus, laoreet eu finibus a, efficitur quis justo. Aliquam nec dictum risus. Nam imperdiet hendrerit suscipit. Suspendisse lobortis nulla placerat turpis scelerisque, semper sodales sem bibendum. Donec at placerat nunc. Aliquam luctus fringilla urna, eget semper mi luctus sed. Phasellus eu blandit quam, eu convallis magna. Aliquam quis ex eu justo feugiat congue eu a leo. Mauris pharetra bibendum efficitur. Sed iaculis nec felis vel mattis. Donec egestas tellus vitae tincidunt tempor. Vivamus magna elit, pharetra et consequat id, molestie sit amet justo. Nunc non vestibulum felis. Sed quis nisi ut lorem vehicula pulvinar. Nulla convallis at mauris vitae tempor. Nulla fermentum arcu quis augue fringilla, luctus pulvinar urna lobortis. Aliquam in odio porttitor, eleifend ligula in, tincidunt neque.'
             );
+
+            expect(waitingJobs.length).toBe(2);
         });
 
         it('should not create with documents set not exist', async () => {
@@ -186,6 +206,11 @@ describe('documents (e2e)', () => {
                 ['DocumentsSet', 'documentsTest_1'],
             ]);
 
+            const waitingJobs: any[] = [];
+            queueEvents.on('waiting', ({ jobId }) => {
+                waitingJobs.push(jobId);
+            });
+
             const code = '481d9713ef6987c7';
 
             const response = await request(app.getHttpServer())
@@ -232,6 +257,8 @@ describe('documents (e2e)', () => {
                 tokens: 3,
                 status: 'CREATED',
             });
+
+            expect(waitingJobs.length).toBe(1);
         });
 
         it('should not update wrong code', async () => {
