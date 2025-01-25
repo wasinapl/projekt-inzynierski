@@ -1,7 +1,9 @@
 <template>
     <v-app>
         <ResponsiveAppBar />
-        <router-view />
+        <div style="padding-top: 64px" class="mt-2 mx-2">
+            <router-view />
+        </div>
     </v-app>
 </template>
 
