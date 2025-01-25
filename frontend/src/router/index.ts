@@ -1,18 +1,29 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../pages/Login.vue'
-import Register from '../pages/Register.vue'
 import Home from '../pages/Home.vue'
 import { useAuthStore } from '../store/auth'
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: '/login', name: 'Login', component: Login },
-        { path: '/register', name: 'Register', component: Register },
+        { path: '/login', name: 'Login', component: () => import('../pages/Login.vue') },
+        { path: '/register', name: 'Register', component: () => import('../pages/Register.vue') },
         {
             path: '/',
             name: 'Home',
             component: Home,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: '/knowledgebases',
+            name: 'KnowledgeBases',
+            component: () => import('../pages/DocumentsSet/DocumentsSets.vue'),
+            meta: { requiresAuth: true },
+        },
+        
+        {
+            path: '/knowledgebases/:code',
+            name: 'KnowledgeBase',
+            component: () => import('../pages/DocumentsSet/DocumentsSet.vue'),
             meta: { requiresAuth: true },
         },
     ],

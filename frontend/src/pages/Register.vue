@@ -80,7 +80,7 @@
         try {
             const data = await register(name.value, email.value, password.value)
             authStore.setAuthData(data.access_token)
-            router.push('/')
+            router.push('/knowledgbases')
         } catch (err: any) {
             error.value = err.response.data.message || 'Registration failed'
         } finally {

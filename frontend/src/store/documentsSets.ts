@@ -4,30 +4,45 @@ import type { DocumentsSet } from '@/types/DocumentsSet'
 import type { CreateDocumentsSetDTO, ModifyDocumentsSetDTO } from '@/types/dto/DocumentsSetDTO'
 
 interface DocumentsSetsState {
-    documentsSets: DocumentsSet[]
-    currentDocumentSet: DocumentsSet | null
+    documentsSets: {
+        data: DocumentsSet[]
+        loading: boolean
+    },
+    documentsSet: {
+        data: DocumentsSet | null
+        loading: boolean
+    }
 }
 
 export const useDocumentsSetsStore = defineStore('documentsSets', {
     state: (): DocumentsSetsState => ({
-        documentsSets: [],
-        currentDocumentSet: null,
+        documentsSets: {
+            data: [],
+            loading: false,
+        },
+        documentsSet: {
+            data: null,
+            loading: false,
+        },
     }),
     actions: {
         async fetchDocumentsSets() {
-            this.documentsSets = await DocumentsSetsService.getAllDocumentsSets()
+            this.documentsSets.loading = true
+            this.documentsSets.data = await DocumentsSetsService.getAllDocumentsSets()
+            this.documentsSets.loading = false
         },
-        async fetchDocumentSet(code: string) {
-            this.currentDocumentSet = await DocumentsSetsService.getDocumentsSetByCode(code)
+        async fetchDocumentsSet(code: string) {
+            this.documentsSet.loading = true
+            this.documentsSet.data = await DocumentsSetsService.getDocumentsSetByCode(code)
+            this.documentsSet.loading = false
         },
-        async createDocumentSetByText(data: CreateDocumentsSetDTO) {
-            const newDocumentSet = await DocumentsSetsService.createDocumentsSetByText(data)
-            this.documentsSets.push(newDocumentSet)
+        async createDocumentsSet(data: CreateDocumentsSetDTO) {
+            await DocumentsSetsService.createDocumentsSet(data)
         },
-        async updateDocumentSet(code: string, data: ModifyDocumentsSetDTO) {
+        async updateDocumentsSet(code: string, data: ModifyDocumentsSetDTO) {
             await DocumentsSetsService.updateDocumentsSet(code, data)
         },
-        async deleteDocumentSet(code: string) {
+        async deleteDocumentsSet(code: string) {
             await DocumentsSetsService.deleteDocumentsSet(code)
         },
     },

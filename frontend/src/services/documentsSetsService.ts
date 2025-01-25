@@ -12,7 +12,7 @@ export class DocumentsSetsService {
         return response.data
     }
 
-    async createDocumentsSetByText(data: CreateDocumentsSetDTO) {
+    async createDocumentsSet(data: CreateDocumentsSetDTO) {
         const response = await axiosInstance.post('/documents-sets', { name: data.name })
         return response.data
     }
