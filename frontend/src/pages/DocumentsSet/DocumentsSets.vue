@@ -5,22 +5,13 @@
         <v-list>
             <template v-if="loading">
                 <v-list-item v-for="n in 5" :key="'skeleton-' + n" class="clickable">
-                    <v-list-item-content>
-                        <!-- Skeleton for the title -->
-                        <v-skeleton-loader
-                            type="text"
-                            :width="200"
-                            class="mb-2"
-                        ></v-skeleton-loader>
-                    </v-list-item-content>
+                    <v-skeleton-loader type="text" :width="200" class="mb-2"></v-skeleton-loader>
                 </v-list-item>
             </template>
 
             <template v-else-if="documentsSets.length == 0">
                 <v-list-item>
-                    <v-list-item-content>
-                        <v-list-item-title>No knowledgebases found.</v-list-item-title>
-                    </v-list-item-content>
+                    <v-list-item-title>No knowledgebases found.</v-list-item-title>
                 </v-list-item>
             </template>
 

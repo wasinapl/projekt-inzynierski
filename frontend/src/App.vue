@@ -2,7 +2,13 @@
     <v-app>
         <ResponsiveAppBar />
         <div style="padding-top: 64px" class="mt-2 mx-2">
-            <router-view />
+            <v-container>
+                <v-row justify="center">
+                    <v-col xs="12" sm="10" md="8" xl="6">
+                        <router-view />
+                    </v-col>
+                </v-row>
+            </v-container>
         </div>
     </v-app>
 </template>

@@ -1,6 +1,6 @@
 export interface Document {
     code: string
-    name: string
+    title: string
     content: string
     status: string
 }

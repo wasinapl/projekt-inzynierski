@@ -167,6 +167,13 @@ export class DocumentService {
             throw new Error('Failed to create document parts');
         }
 
+        for (const partId of createPartResults) {
+            await this.documentQueue.add('document-queue', {
+                documentId: document.id,
+                partId,
+            });
+        }
+
         return plainToInstance(DocumentDto, updatedDocument, {
             excludeExtraneousValues: true,
         });

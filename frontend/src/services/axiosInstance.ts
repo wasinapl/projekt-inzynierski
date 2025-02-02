@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/store/auth'
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_API_URL
@@ -16,5 +17,21 @@ export const setAuthToken = (token: string | null) => {
         delete axiosInstance.defaults.headers.common['Authorization']
     }
 }
+
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (
+            error.response &&
+            error.response.status === 401 &&
+            error.response.data &&
+            error.response.data.message === 'Unauthorized'
+        ) {
+            const authStore = useAuthStore()
+            authStore.logout()
+        }
+        return Promise.reject(error)
+    }
+)
 
 export default axiosInstance
