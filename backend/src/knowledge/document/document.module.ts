@@ -1,14 +1,24 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
+
+import { DocumentController } from './document.controller';
 import { DocumentPartProcessor } from './document-part.processor';
-import { PrismaService } from './../../prisma/prisma.service';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { OpenAIModule } from 'src/openai/openai.module';
+import { DocumentService } from './document.service';
+import { UtilsModule } from '@src/utils/utils.module';
 
 @Module({
     imports: [
+        PrismaModule,
+        OpenAIModule,
+        UtilsModule,
+
         BullModule.registerQueue({
             name: 'document-queue',
         }),
     ],
-    providers: [DocumentPartProcessor, PrismaService],
+    controllers: [DocumentController],
+    providers: [DocumentService, DocumentPartProcessor],
 })
 export class DocumentModule {}
