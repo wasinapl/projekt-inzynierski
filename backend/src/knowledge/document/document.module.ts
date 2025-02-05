@@ -7,6 +7,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { OpenAIModule } from 'src/openai/openai.module';
 import { DocumentService } from './document.service';
 import { UtilsModule } from '@src/utils/utils.module';
+import { DocumentStatusGateway } from './document-status.gateway';
 
 @Module({
     imports: [
@@ -19,6 +20,6 @@ import { UtilsModule } from '@src/utils/utils.module';
         }),
     ],
     controllers: [DocumentController],
-    providers: [DocumentService, DocumentPartProcessor],
+    providers: [DocumentService, DocumentPartProcessor, DocumentStatusGateway],
 })
 export class DocumentModule {}

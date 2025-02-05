@@ -8,7 +8,13 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 
-@WebSocketGateway({ namespace: 'document-status' })
+@WebSocketGateway({
+    namespace: 'documents',
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+    },
+})
 export class DocumentStatusGateway
     implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
