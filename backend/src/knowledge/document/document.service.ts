@@ -3,7 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateDocumentFromTextDto } from './dto/create-document-from-text.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { CreateDocumentFromFileDto } from './dto/create-document-from-file.dto';
-import { FileToTextService } from '../utils/file-to-text.service';
+import { FileToTextService } from 'src/utils/file-to-text.service';
 import { DocumentType } from '@prisma/client';
 import { DocumentDto } from './dto/document.dto';
 import { plainToInstance } from 'class-transformer';
