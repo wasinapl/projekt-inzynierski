@@ -39,5 +39,11 @@ export const useAuthStore = defineStore('auth', {
             return Promise.resolve()
             // localStorage.removeItem('user')
         },
+        getToken() {
+            if (!this.token) {
+                this.loadFromStorage()
+            }
+            return this.token
+        },
     },
 })

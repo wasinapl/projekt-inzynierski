@@ -6,6 +6,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { AuthController } from './auth.controller';
 import { PrismaModule } from './../prisma/prisma.module';
 import { LocalStrategy } from './local.strategy';
+import { WsJwtMiddleware } from './ws-jwt.middleware';
 
 @Module({
     imports: [
@@ -16,8 +17,8 @@ import { LocalStrategy } from './local.strategy';
         }),
         PrismaModule,
     ],
-    providers: [AuthService, JwtStrategy, LocalStrategy],
+    providers: [AuthService, JwtStrategy, LocalStrategy, WsJwtMiddleware],
     controllers: [AuthController],
-    exports: [AuthService],
+    exports: [AuthService, WsJwtMiddleware],
 })
 export class AuthModule {}

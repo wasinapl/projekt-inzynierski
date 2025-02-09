@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../pages/Home.vue'
-import { useAuthStore } from '../store/auth'
+import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -19,7 +19,7 @@ const router = createRouter({
             component: () => import('../pages/DocumentsSet/DocumentsSets.vue'),
             meta: { requiresAuth: true },
         },
-        
+
         {
             path: '/knowledgebases/:code',
             name: 'KnowledgeBase',

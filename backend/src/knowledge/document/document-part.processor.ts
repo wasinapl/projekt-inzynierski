@@ -1,15 +1,19 @@
+// document-part.processor.ts
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject } from '@nestjs/common';
-import { DocumentPartStatus, DocumentStatus } from '@prisma/client';
-import { OpenAIService } from './../../openai/openai.service';
-import { PrismaService } from './../../prisma/prisma.service';
+import { Document, DocumentPartStatus, DocumentStatus } from '@prisma/client';
+import { OpenAIService } from 'src/openai/openai.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { Job } from 'bullmq';
+import { DocumentStatusGateway } from 'src/knowledge/document/document-status.gateway';
 
 @Processor('document-queue')
 export class DocumentPartProcessor extends WorkerHost {
     constructor(
         private prisma: PrismaService,
-        @Inject(OpenAIService) private readonly openAIService: OpenAIService
+        @Inject(OpenAIService)
+        private readonly openAIService: OpenAIService,
+        private readonly documentStatusGateway: DocumentStatusGateway
     ) {
         super();
     }
@@ -24,21 +28,22 @@ export class DocumentPartProcessor extends WorkerHost {
         if (!document) {
             return { result: 'ERROR' };
         }
+
         if (document.status !== 'PROCESSING') {
-            await this.setDocumentStatus(documentId, 'PROCESSING');
+            await this.setDocumentStatus(document, 'PROCESSING');
         }
 
         const result = await this.processPart(partId);
 
         if (!result) {
-            await this.setDocumentStatus(documentId, 'FAILED');
+            await this.setDocumentStatus(document, 'FAILED');
             return { result: 'ERROR' };
         }
 
         const allPartsDone = await this.checkAllPartsDone(documentId);
 
         if (allPartsDone) {
-            await this.setDocumentStatus(documentId, 'READY');
+            await this.setDocumentStatus(document, 'READY');
         }
 
         return { result: 'OK' };
@@ -80,13 +85,21 @@ export class DocumentPartProcessor extends WorkerHost {
     }
 
     private async setDocumentStatus(
-        documentId: number,
+        document: Document,
         status: DocumentStatus
     ) {
-        await this.prisma.document.update({
-            where: { id: documentId },
+        const updatedDocument = await this.prisma.document.update({
+            where: { id: document.id },
             data: { status },
         });
+
+        this.documentStatusGateway.sendStatusUpdate(
+            document.code,
+            status,
+            document.userId
+        );
+
+        return updatedDocument;
     }
 
     private async setDocumentPartStatus(

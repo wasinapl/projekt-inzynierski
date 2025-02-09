@@ -4,28 +4,14 @@
         <div>
             <v-btn color="primary" @click="openDialog('new')"> Add New File/Text </v-btn>
             <div class="d-flex flex-wrap">
-                <v-card
+                <DocumentListItem
                     class="ma-2"
                     v-for="document in documentsSet?.documents"
                     :key="document.code"
-                >
-                    <template v-slot:title>
-                        <v-icon icon="mdi-text-box-outline" size="small"></v-icon>
-                        {{ document.title }}
-                        <v-chip :color="getStatusColor(document.status)" dark small class="ml-2">
-                            {{ document.status }}
-                        </v-chip>
-                    </template>
-
-                    <template v-slot:subtitle></template>
-
-                    <template v-slot:actions>
-                        <v-btn color="primary" @click="openDialog(document.code)"> Edit </v-btn>
-                        <v-btn color="error" @click="openDeleteDialog(document.code)">
-                            Delete
-                        </v-btn>
-                    </template>
-                </v-card>
+                    :document="document"
+                    @on-delete-click="openDeleteDialog(document.code)"
+                    @on-edit-click="openDialog(document.code)"
+                />
             </div>
         </div>
 
@@ -39,11 +25,12 @@
 </template>
 
 <script lang="ts" setup>
-    import { useDocumentsSetsStore } from '@/store/documentsSets'
+    import { useDocumentsSetsStore } from '@/stores/documentsSets'
     import { ref, computed } from 'vue'
     import { useRoute } from 'vue-router'
-    import CreateDocument from '@/components/CreateDocument.vue'
-    import DeleteDocument from '@/components/DeleteDocument.vue'
+    import CreateDocument from '@/components/Documents/CreateDocument.vue'
+    import DeleteDocument from '@/components/Documents/DeleteDocument.vue'
+    import DocumentListItem from '@/components/Documents/DocumentListItem.vue'
 
     const documentsSetsStore = useDocumentsSetsStore()
 

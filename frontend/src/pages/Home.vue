@@ -9,8 +9,8 @@
 </template>
 
 <script lang="ts" setup>
-    import { useAuthStore } from '../store/auth'
-    import { useDocumentsSetsStore } from '../store/documentsSets'
+    import { useAuthStore } from '../stores/auth'
+    import { useDocumentsSetsStore } from '../stores/documentsSets'
     const authStore = useAuthStore()
     const documentsSetsStore = useDocumentsSetsStore()
 

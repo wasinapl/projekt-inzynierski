@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts" setup>
-    import { useDocumentsStore } from '@/store/documents'
+    import { useDocumentsStore } from '@/stores/documents'
     import { ref, computed } from 'vue'
 
     interface Props {

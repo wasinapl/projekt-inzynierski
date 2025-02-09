@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/store/auth'
+import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_API_URL

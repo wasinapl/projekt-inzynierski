@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts" setup>
-    import { useDocumentsSetsStore } from '@/store/documentsSets'
+    import { useDocumentsSetsStore } from '@/stores/documentsSets'
     import type { CreateDocumentsSetDTO } from '@/types/dto/DocumentsSetDTO'
     import { ref, computed } from 'vue'
     import { useRouter } from 'vue-router'

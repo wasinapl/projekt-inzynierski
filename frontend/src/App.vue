@@ -15,19 +15,7 @@
 
 <script lang="ts" setup>
     import ResponsiveAppBar from './components/ResponsiveAppBar.vue'
-    import { useAuthStore } from './store/auth'
-    import { io, Socket } from 'socket.io-client'
-    import { ref, onMounted } from 'vue'
-
-    const socket = ref<Socket | null>(null)
-
-    onMounted(() => {
-        socket.value = io('http://localhost:3000/documents')
-
-        socket.value.on('connect', () => {
-            console.log('Connected to server:', socket.value?.id)
-        })
-    })
+    import { useAuthStore } from './stores/auth'
 
     const authStore = useAuthStore()
     authStore.loadFromStorage()
