@@ -1,6 +1,10 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+import {
+    ChatCompletionMessageParam,
+    ChatCompletionChunk,
+} from 'openai/resources/chat/completions';
 
 @Injectable()
 export class OpenAIService {
@@ -30,22 +34,22 @@ export class OpenAIService {
         }
     }
 
-    // async getChatCompletion(
-    //     messages: string[],
-    //     model: string = 'gpt-4'
-    // ): Promise<string> {
-    //     try {
-    //         const response = await this.openai.createChatCompletion({
-    //             model,
-    //             messages,
-    //         });
-    //         const reply = response.data.choices[0].message?.content.trim();
-    //         return reply || '';
-    //     } catch (error) {
-    //         // Log the error or handle it as per your needs
-    //         throw new InternalServerErrorException(
-    //             'Failed to generate chat completion.'
-    //         );
-    //     }
-    // }
+    async getChatCompletion(
+        messages: ChatCompletionMessageParam[],
+        model: string = 'gpt-4o'
+    ): Promise<AsyncIterable<ChatCompletionChunk>> {
+        try {
+            const completion = await this.client.chat.completions.create({
+                model,
+                messages,
+                store: true,
+                stream: true,
+            });
+            return completion;
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Failed to generate chat completion.'
+            );
+        }
+    }
 }

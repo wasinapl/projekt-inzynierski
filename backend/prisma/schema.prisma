@@ -39,6 +39,7 @@ model User {
   role         Role           @default(USER)
   Document     Document[]
   DocumentsSet DocumentsSet[]
+  ChatThread   ChatThread[]
 }
 
 model DocumentsSet {
@@ -96,6 +97,13 @@ model ChatThread {
   messages      Message[]
   documentSetId Int
   DocumentSet   DocumentsSet @relation(fields: [documentSetId], references: [id], onDelete: Cascade)
+  userId        Int?
+  User          User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum SenderType {
+  USER
+  AI
 }
 
 model Message {
@@ -104,4 +112,5 @@ model Message {
   createdAt    DateTime   @default(now())
   chatThreadId Int
   ChatThread   ChatThread @relation(fields: [chatThreadId], references: [id], onDelete: Cascade)
+  senderType   SenderType
 }
