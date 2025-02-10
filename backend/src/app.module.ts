@@ -12,9 +12,8 @@ import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exce
 
 @Module({
     imports: [
-        // Make sure to initialize ConfigModule (optionally as global):
         ConfigModule.forRoot({
-            // isGlobal: true, // If you want environment config to be global
+            isGlobal: true,
         }),
 
         AuthModule,
@@ -23,7 +22,6 @@ import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exce
         OpenAIModule,
         KnowledgeModule,
 
-        // Register the BullMQ connection here
         BullModule.forRoot({
             connection: {
                 host: process.env.REDIS_URL,
