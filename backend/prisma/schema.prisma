@@ -114,3 +114,9 @@ model Message {
   ChatThread   ChatThread @relation(fields: [chatThreadId], references: [id], onDelete: Cascade)
   senderType   SenderType
 }
+
+model ResponseLog {
+  id     Int  @id @default(autoincrement())
+  input  Json
+  output Json
+}

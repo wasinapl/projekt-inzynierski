@@ -8,7 +8,6 @@ import { OpenAIModule } from 'src/openai/openai.module';
 import { DocumentService } from './document.service';
 import { UtilsModule } from '@src/utils/utils.module';
 import { DocumentStatusGateway } from './document-status.gateway';
-import { WsJwtMiddleware } from '@src/auth/ws-jwt.middleware';
 import { AuthModule } from '@src/auth/auth.module';
 
 @Module({
