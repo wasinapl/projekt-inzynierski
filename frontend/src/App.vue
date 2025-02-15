@@ -15,10 +15,15 @@
 
 <script lang="ts" setup>
     import ResponsiveAppBar from './components/ResponsiveAppBar.vue'
-    import { useAuthStore } from './stores/auth'
+    import { useAuthStore } from './stores/authStore'
+    import { useRouter } from 'vue-router'
 
     const authStore = useAuthStore()
-    authStore.loadFromStorage()
+    const router = useRouter()
+    authStore.load().catch((err) => {
+        authStore.logout()
+        router.push('Login')
+    })
 </script>
 
 <style scoped>

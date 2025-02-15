@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-    import { useDocumentsSetsStore } from '@/stores/documentsSets'
+    import { useDocumentsSetsStore } from '@/stores/documentsSetsStore'
     import { ref, computed } from 'vue'
     import { useRoute } from 'vue-router'
     import CreateDocument from '@/components/Documents/CreateDocument.vue'

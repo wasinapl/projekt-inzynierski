@@ -1,16 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../pages/Home.vue'
-import { useAuthStore } from '../stores/auth'
+import Chat from '../pages/Chat.vue'
+import { useAuthStore } from '../stores/authStore'
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
+        { path: '/', redirect: '/thread/new' },
+        { path: '/thread', redirect: '/thread/new' },
         { path: '/login', name: 'Login', component: () => import('../pages/Login.vue') },
         { path: '/register', name: 'Register', component: () => import('../pages/Register.vue') },
         {
-            path: '/',
-            name: 'Home',
-            component: Home,
+            path: '/thread/:code',
+            name: 'Chat',
+            component: Chat,
             meta: { requiresAuth: true },
         },
         {

@@ -40,7 +40,7 @@
 <script lang="ts" setup>
     import { ref } from 'vue'
     import { useRouter } from 'vue-router'
-    import { useAuthStore } from '../stores/auth'
+    import { useAuthStore } from '../stores/authStore'
     import { login } from '../services/authService'
 
     const email = ref('')
@@ -68,7 +68,7 @@
             const data = await login(email.value, password.value)
 
             authStore.setAuthData(data.access_token)
-            router.push('/')
+            router.push('/thread/new')
         } catch (err: any) {
             error.value = err.response.data.message || 'Login failed'
         } finally {

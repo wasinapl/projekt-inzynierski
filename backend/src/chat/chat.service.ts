@@ -5,6 +5,8 @@ import {
     ChatCompletionChunk,
     ChatCompletionMessageParam,
 } from 'openai/resources/chat/completions';
+import { ThreadService } from './thread/thread.service';
+import { Prisma, SenderType } from '@prisma/client';
 
 @Injectable()
 export class ChatService {
@@ -15,16 +17,29 @@ export class ChatService {
 
     constructor(
         private openai: OpenAIService,
-        private readonly responseLogService: ResponseLogService
+        private readonly responseLogService: ResponseLogService,
+        private readonly threadService: ThreadService
     ) {}
 
     async getAIResponseStream(
-        prompt: string
+        threadCode: string,
+        userId: number
     ): Promise<AsyncIterable<ChatCompletionChunk>> {
         const model = 'gpt-4o';
-        const messages: ChatCompletionMessageParam[] = [
-            { role: 'user', content: prompt },
-        ];
+        const messages: ChatCompletionMessageParam[] = [];
+        const threadMessages = await this.getThreadMessages(threadCode, userId);
+
+        if (threadMessages.length > 0) {
+            threadMessages.forEach((message) => {
+                messages.push({
+                    role:
+                        message.senderType === SenderType.USER
+                            ? 'user'
+                            : 'assistant',
+                    content: message.content,
+                });
+            });
+        }
 
         this.lastInput = {
             model,
@@ -39,5 +54,11 @@ export class ChatService {
             JSON.stringify(this.lastInput),
             JSON.stringify({ response })
         );
+    }
+
+    async getThreadMessages(threadCode: string, userId: number) {
+        return await this.threadService.getThreadMesssages(threadCode, userId, {
+            limit: 10,
+        });
     }
 }

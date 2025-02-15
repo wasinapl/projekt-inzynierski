@@ -20,7 +20,7 @@
 <script lang="ts" setup>
     import type { Document } from '@/types/Document'
     import { onMounted, onUnmounted } from 'vue'
-    import { connectSocket } from '@/sockets/documents.socket'
+    import { connectSocket } from '@/sockets/documentsSocket'
 
     const socket = connectSocket()
 

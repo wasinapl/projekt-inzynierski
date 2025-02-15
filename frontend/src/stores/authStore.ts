@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia'
 import { setAuthToken } from '@/services/axiosInstance'
+import type { User } from '@/types/User'
+import userService from '@/services/userService'
 
 interface AuthState {
     token: string | null
-    user: { email: string } | null
+    user: User | null
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -17,32 +19,31 @@ export const useAuthStore = defineStore('auth', {
     actions: {
         setAuthData(token: string) {
             this.token = token
-            // this.user = user
             localStorage.setItem('token', token)
             setAuthToken(token)
-            // localStorage.setItem('user', JSON.stringify(user))
         },
-        loadFromStorage() {
+        async load() {
             const token = localStorage.getItem('token')
-            // const user = localStorage.getItem('user')
+            setAuthToken(token)
             if (token) {
                 this.token = token
-                setAuthToken(token)
-                // this.user = JSON.parse(user)
+                const user = await userService.get()
+                if (user) {
+                    this.user = user
+                } else {
+                    this.logout()
+                    return Promise.reject('Invalid token')
+                }
+            } else {
+                return Promise.reject('Not logged in')
             }
         },
         logout() {
             this.token = null
             this.user = null
             localStorage.removeItem('token')
-            setAuthToken(null)
-            return Promise.resolve()
-            // localStorage.removeItem('user')
         },
         getToken() {
-            if (!this.token) {
-                this.loadFromStorage()
-            }
             return this.token
         },
     },

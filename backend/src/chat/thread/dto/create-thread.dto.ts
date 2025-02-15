@@ -3,5 +3,5 @@ import { IsNotEmpty, IsNumber } from 'class-validator';
 export class CreateThreadDto {
     @IsNotEmpty()
     @IsNumber()
-    documentSetId: number;
+    documentsSetCode: string;
 }

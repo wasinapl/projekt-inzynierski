@@ -10,6 +10,7 @@ import { QueuesModule } from './queues/queues.module';
 import { OpenAIModule } from './openai/openai.module';
 import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exception.filter';
 import { ChatModule } from './chat/chat.module';
+import { UserModule } from './user/user.module';
 
 @Module({
     imports: [
@@ -23,6 +24,7 @@ import { ChatModule } from './chat/chat.module';
         OpenAIModule,
         KnowledgeModule,
         ChatModule,
+        UserModule,
 
         BullModule.forRoot({
             connection: {

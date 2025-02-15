@@ -39,30 +39,31 @@ export class ChatGateway {
         @ConnectedSocket() client: Socket
     ): Promise<void> {
         const user = client.handshake.auth.user;
-        data.threadCode = 'test';
-        data.message = 'hi';
+
         if (user && user.id) {
-            await this.threadService.addThreadMessage(
+            const message = await this.threadService.addThreadMessage(
                 data.threadCode,
                 user.id,
                 { content: data.message, senderType: SenderType.USER }
             );
 
-            client.emit('message', {
-                sender: SenderType.USER,
-                text: data.message,
+            client.emit('message', data.threadCode, {
+                id: message.id,
+                content: message.content,
+                senderType: SenderType.USER,
             });
 
             const completion = await this.chatService.getAIResponseStream(
-                data.message
+                data.threadCode,
+                user.id
             );
 
             let responseMessage = '';
             for await (const chunk of completion) {
                 const finishReason = chunk.choices[0].finish_reason;
                 if (finishReason == 'stop') {
-                    client.emit('message-stream-end', { finished: true });
-                    await this.threadService.addThreadMessage(
+                    client.emit('message-stream-end', data.threadCode, true);
+                    const aiMessage = await this.threadService.addThreadMessage(
                         data.threadCode,
                         user.id,
                         {
@@ -70,10 +71,17 @@ export class ChatGateway {
                             senderType: SenderType.AI,
                         }
                     );
+
+                    client.emit('message', data.threadCode, {
+                        id: aiMessage.id,
+                        content: aiMessage.content,
+                        senderType: aiMessage.senderType,
+                    });
+                    this.chatService.saveLog(responseMessage);
                 } else {
                     const content = chunk.choices[0].delta.content;
                     responseMessage += content;
-                    client.emit('message-stream', { text: content });
+                    client.emit('message-stream', data.threadCode, content);
                 }
             }
         } else {

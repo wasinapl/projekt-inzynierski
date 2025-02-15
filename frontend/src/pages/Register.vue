@@ -47,7 +47,7 @@
 <script lang="ts" setup>
     import { ref } from 'vue'
     import { useRouter } from 'vue-router'
-    import { useAuthStore } from '../stores/auth'
+    import { useAuthStore } from '../stores/authStore'
     import { register } from '../services/authService'
 
     const name = ref('')
@@ -80,7 +80,7 @@
         try {
             const data = await register(name.value, email.value, password.value)
             authStore.setAuthData(data.access_token)
-            router.push('/knowledgbases')
+            router.push('/thread/new')
         } catch (err: any) {
             error.value = err.response.data.message || 'Registration failed'
         } finally {

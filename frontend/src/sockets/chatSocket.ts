@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/authStore'
 
 let socket: Socket | null = null
 
@@ -11,7 +11,7 @@ export function connectSocket(): Socket {
     const authStore = useAuthStore()
     const token = authStore.getToken()
 
-    socket = io('http://localhost:3000/documents', {
+    socket = io('http://localhost:3000/chat', {
         extraHeaders: {
             Authorization: `Bearer ${token}`,
         },

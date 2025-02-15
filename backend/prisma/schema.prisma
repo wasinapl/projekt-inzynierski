@@ -97,8 +97,8 @@ model ChatThread {
   messages      Message[]
   documentSetId Int
   DocumentSet   DocumentsSet @relation(fields: [documentSetId], references: [id], onDelete: Cascade)
-  userId        Int?
-  User          User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int
+  User          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum SenderType {
@@ -108,7 +108,7 @@ enum SenderType {
 
 model Message {
   id           Int        @id @default(autoincrement())
-  content      String
+  content      String     @db.Text
   createdAt    DateTime   @default(now())
   chatThreadId Int
   ChatThread   ChatThread @relation(fields: [chatThreadId], references: [id], onDelete: Cascade)

@@ -4,6 +4,8 @@ import { Expose, Type } from 'class-transformer';
 
 export class MessageDto {
     @Expose()
+    id?: number;
+    @Expose()
     content: string;
     @Expose()
     senderType: SenderType;
