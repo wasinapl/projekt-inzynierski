@@ -72,7 +72,7 @@ export class DocumentService {
     ) {
         const code = require('crypto').randomBytes(8).toString('hex');
 
-        const documentsSet = await this.prisma.document.findUnique({
+        const documentsSet = await this.prisma.documentsSet.findUnique({
             where: { code: data.documentsSetCode, userId: data.userId },
         });
 
@@ -86,12 +86,29 @@ export class DocumentService {
         const document = await this.prisma.document.create({
             data: {
                 code: code,
-                title: data.title,
+                title: file.originalname,
                 content: extractedText,
                 documentsSetId: documentsSet.id,
                 userId: data.userId,
+                type: DocumentType.FILE,
             },
         });
+
+        const createPartResults = await this.createDocumentPartsFromText(
+            document.content,
+            document.id
+        );
+
+        if (!createPartResults.length) {
+            throw new Error('Failed to create document parts');
+        }
+
+        for (const partId of createPartResults) {
+            await this.documentQueue.add('document-queue', {
+                documentId: document.id,
+                partId,
+            });
+        }
 
         return plainToInstance(DocumentDto, document, {
             excludeExtraneousValues: true,

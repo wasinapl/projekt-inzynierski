@@ -1,7 +1,11 @@
 import { defineStore } from 'pinia'
 import DocumentsService from '@/services/documentsService'
 import type { Document } from '@/types/Document'
-import type { CreateDocumentFromTextDTO, ModifyDocumentDTO } from '@/types/dto/DocumentDTO'
+import type {
+    CreateDocumentFromFileDTO,
+    CreateDocumentFromTextDTO,
+    ModifyDocumentDTO,
+} from '@/types/dto/DocumentDTO'
 
 interface DocumentsState {
     document: {
@@ -25,6 +29,9 @@ export const useDocumentsStore = defineStore('documents', {
         },
         async createDocumentFromText(data: CreateDocumentFromTextDTO) {
             await DocumentsService.createDocumentFromText(data)
+        },
+        async createDocumentFromFile(data: CreateDocumentFromFileDTO) {
+            await DocumentsService.createDocumentFromFile(data)
         },
         async updateDocument(code: string, data: ModifyDocumentDTO) {
             await DocumentsService.updateDocument(code, data)

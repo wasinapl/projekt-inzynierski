@@ -1,4 +1,4 @@
-import { DocumentStatus } from '@prisma/client';
+import { DocumentStatus, DocumentType } from '@prisma/client';
 import { Expose } from 'class-transformer';
 
 export class DocumentInSetDto {
@@ -8,4 +8,6 @@ export class DocumentInSetDto {
     title: string;
     @Expose()
     status: DocumentStatus;
+    @Expose()
+    type: DocumentType;
 }

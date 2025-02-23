@@ -42,6 +42,19 @@ export class DocumentsSetService {
             where: { code, userId },
             include: {
                 documents: true,
+                ChatThreads: {
+                    select: {
+                        code: true,
+                        createdAt: true,
+                        messages: {
+                            orderBy: { createdAt: 'desc' },
+                            take: 1,
+                        },
+                    },
+                    orderBy: {
+                        createdAt: 'desc',
+                    },
+                },
             },
         });
 

@@ -39,6 +39,7 @@
         "crypto": "^1.0.1",
         "docx": "^9.1.0",
         "ioredis": "^5.4.2",
+        "mammoth": "^1.9.0",
         "openai": "^4.77.3",
         "passport": "^0.7.0",
         "passport-jwt": "^4.0.1",
@@ -48,6 +49,7 @@
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.1",
         "socket.io": "^4.8.1",
+        "textract": "^2.5.0",
         "tiktoken": "^1.0.18"
     },
     "devDependencies": {
@@ -60,6 +62,7 @@
         "@types/node": "^20.17.6",
         "@types/passport-local": "^1.0.38",
         "@types/supertest": "^6.0.0",
+        "@types/textract": "^2.4.5",
         "@typescript-eslint/eslint-plugin": "^8.0.0",
         "@typescript-eslint/parser": "^8.0.0",
         "cross-env": "^7.0.3",

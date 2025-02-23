@@ -12,6 +12,7 @@
             <div class="d-none d-md-flex">
                 <template v-if="authStore.isAuthenticated">
                     <v-btn variant="text" color="white" to="/">Chat</v-btn>
+                    <v-btn variant="text" color="white" to="/knowledgebases">Knowledge bases</v-btn>
                     <v-btn variant="text" color="white" @click="logout">Logout</v-btn>
                 </template>
                 <template v-else>

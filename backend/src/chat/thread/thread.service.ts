@@ -7,7 +7,7 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ThreadService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) {}
 
     async createThread(data: CreateThreadDto, userId: number) {
         const code = require('crypto').randomBytes(12).toString('hex');
@@ -25,7 +25,7 @@ export class ThreadService {
         const thread = await this.prisma.chatThread.create({
             data: {
                 code,
-                documentSetId: documentsSet.id,
+                documentsSetId: documentsSet.id,
                 userId: userId,
             },
         });
@@ -58,6 +58,7 @@ export class ThreadService {
                     orderBy: { createdAt: 'asc' },
                     take: 10,
                 },
+                DocumentsSet: true,
             },
         });
 

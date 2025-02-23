@@ -1,7 +1,8 @@
 <template>
     <v-card class="ma-2">
         <template v-slot:title>
-            <v-icon icon="mdi-text-box-outline" size="small"></v-icon>
+            <v-icon v-if="document.type == 'TEXT'" icon="mdi-text-box-outline" size="small" />
+            <v-icon v-else icon="mdi-file" size="small" />
             {{ document.title }}
             <v-chip :color="getStatusColor(document.status)" dark small class="ml-2">
                 {{ document.status }}
@@ -11,7 +12,9 @@
         <template v-slot:subtitle></template>
 
         <template v-slot:actions>
-            <v-btn color="primary" @click="onEditClick"> Edit </v-btn>
+            <v-btn color="primary" @click="onEditClick" v-if="document.type == 'TEXT'">
+                Edit
+            </v-btn>
             <v-btn color="error" @click="onDeleteClick"> Delete </v-btn>
         </template>
     </v-card>

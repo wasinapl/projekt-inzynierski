@@ -3,6 +3,6 @@ import type { Message } from './Message'
 
 export interface Thread {
     code: string
-    documentsSet: DocumentsSet
+    DocumentsSet: DocumentsSet
     messages: Message[]
 }

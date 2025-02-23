@@ -43,15 +43,15 @@ model User {
 }
 
 model DocumentsSet {
-  id         Int          @id @default(autoincrement())
-  code       String       @unique
-  name       String
-  userId     Int?
-  User       User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  documents  Document[]   @relation()
-  ChatThread ChatThread[]
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+  id          Int          @id @default(autoincrement())
+  code        String       @unique
+  name        String
+  userId      Int?
+  User        User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents   Document[]   @relation()
+  ChatThreads ChatThread[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 model Document {
@@ -90,15 +90,15 @@ model DocumentPartEmbedding {
 }
 
 model ChatThread {
-  id            Int          @id @default(autoincrement())
-  code          String       @unique
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  messages      Message[]
-  documentSetId Int
-  DocumentSet   DocumentsSet @relation(fields: [documentSetId], references: [id], onDelete: Cascade)
-  userId        Int
-  User          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             Int          @id @default(autoincrement())
+  code           String       @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  messages       Message[]
+  documentsSetId Int
+  DocumentsSet   DocumentsSet @relation(fields: [documentsSetId], references: [id], onDelete: Cascade)
+  userId         Int
+  User           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum SenderType {
@@ -116,7 +116,8 @@ model Message {
 }
 
 model ResponseLog {
-  id     Int  @id @default(autoincrement())
-  input  Json
-  output Json
+  id        Int      @id @default(autoincrement())
+  input     Json
+  output    Json
+  createdAt DateTime @default(now())
 }

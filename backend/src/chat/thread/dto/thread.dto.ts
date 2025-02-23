@@ -23,5 +23,5 @@ export class ThreadDto {
     messages: MessageDto[];
     @Expose()
     @Type(() => DocumentsSetDto)
-    documentSet: DocumentsSetDto;
+    DocumentsSet: DocumentsSetDto;
 }

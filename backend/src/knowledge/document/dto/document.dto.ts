@@ -1,4 +1,4 @@
-import { DocumentStatus } from '@prisma/client';
+import { DocumentStatus, DocumentType } from '@prisma/client';
 import { Expose } from 'class-transformer';
 
 export class DocumentDto {
@@ -10,4 +10,6 @@ export class DocumentDto {
     content: string;
     @Expose()
     status: DocumentStatus;
+    @Expose()
+    type: DocumentType;
 }

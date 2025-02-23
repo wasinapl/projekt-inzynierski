@@ -54,6 +54,7 @@ export class ChatGateway {
             });
 
             const completion = await this.chatService.getAIResponseStream(
+                data.message,
                 data.threadCode,
                 user.id
             );

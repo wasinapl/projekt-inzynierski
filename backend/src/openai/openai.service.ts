@@ -1,5 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '@src/prisma/prisma.service';
 import OpenAI from 'openai';
 import {
     ChatCompletionMessageParam,
@@ -8,9 +10,12 @@ import {
 
 @Injectable()
 export class OpenAIService {
-    private client: OpenAI;
+    private readonly client: OpenAI;
 
-    constructor(private configService: ConfigService) {
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly configService: ConfigService
+    ) {
         this.client = new OpenAI({
             apiKey: this.configService.get<string>('OPENAI_API_KEY'),
         });
@@ -45,7 +50,38 @@ export class OpenAIService {
                 store: true,
                 stream: true,
             });
-            return completion;
+
+            const prisma = this.prisma;
+
+            async function* streamWithLogging(): AsyncIterable<ChatCompletionChunk> {
+                const outputChunks: ChatCompletionChunk[] = [];
+
+                for await (const chunk of completion) {
+                    outputChunks.push(chunk);
+                    yield chunk;
+                }
+
+                const input = {
+                    model,
+                    messages: messages.map((message) => ({
+                        role: message.role,
+                        content: message.content,
+                    })),
+                };
+                const output = {
+                    content: outputChunks
+                        .map((chunk) => chunk.choices[0].delta.content)
+                        .join(''),
+                };
+                await prisma.responseLog.create({
+                    data: {
+                        input: input as Prisma.JsonValue,
+                        output: output as Prisma.JsonValue,
+                    },
+                });
+            }
+
+            return streamWithLogging();
         } catch (error) {
             throw new InternalServerErrorException(
                 'Failed to generate chat completion.'

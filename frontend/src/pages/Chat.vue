@@ -3,13 +3,17 @@
         <div class="chat-options">
             <v-select
                 v-if="isNew"
-                v-model="documentSetCode"
+                v-model="documentsSetCode"
                 label="Select knowledge base"
                 item-title="name"
                 item-value="code"
                 :items="documentsSets"
                 variant="outlined"
             ></v-select>
+            <div v-else>
+                This thread have knowledge from knowledge base:
+                {{ thread?.DocumentsSet.name }}
+            </div>
         </div>
         <div class="chat-messages" ref="messages_container">
             <div
@@ -35,7 +39,7 @@
                 auto-grow
                 @keydown.enter.prevent="sendMessage"
             ></v-textarea>
-            <v-btn @click="sendMessage">Send</v-btn>
+            <v-btn @click="sendMessage" :disabled="submitting">Send</v-btn>
         </div>
     </div>
 </template>
@@ -55,7 +59,8 @@
     const router = useRouter()
     const threadCode = ref<string | undefined>(route.params.code as string | undefined)
     const message = ref<string>('')
-    const documentSetCode = ref<string | undefined>()
+    const submitting = ref<boolean>(false)
+    const documentsSetCode = ref<string | undefined>()
     const messages_container = ref<HTMLElement | null>(null)
 
     const messages = ref<Message[]>([])
@@ -69,6 +74,18 @@
                 threadsStore.fetchThread(threadCode.value!).then(() => {
                     messages.value = threadsStore.thread.data?.messages || []
                 })
+            } else if (threadCode.value === 'new') {
+                messages.value = []
+            }
+        },
+        { immediate: true }
+    )
+
+    watch(
+        () => route.query.documentsSet,
+        (newCode) => {
+            if (newCode && !Array.isArray(newCode)) {
+                documentsSetCode.value = newCode as string | undefined
             }
         },
         { immediate: true }
@@ -76,20 +93,28 @@
 
     const isNew = computed(() => threadCode.value === 'new')
     const documentsSets = computed(() => documentsSetsStore.documentsSets.data)
+    const thread = computed(() => threadsStore.thread.data)
 
     const sendMessage = async () => {
-        if (message.value.trim() === '' || (isNew.value && !documentSetCode.value)) {
+        if (
+            message.value.trim() === '' ||
+            (isNew.value && !documentsSetCode.value) ||
+            submitting.value
+        ) {
             return
         }
 
+        submitting.value = true
         if (isNew.value) {
             const code = await threadsStore.createThread({
-                documentsSetCode: documentSetCode.value!,
+                documentsSetCode: documentsSetCode.value!,
             })
             router.push({ name: 'Chat', params: { code: code } })
+            socket.emit('message', { threadCode: code, message: message.value })
+        } else {
+            socket.emit('message', { threadCode: threadCode.value, message: message.value })
         }
 
-        socket.emit('message', { threadCode: threadCode.value, message: message.value })
         message.value = ''
         setScrollToBottom()
     }
@@ -117,6 +142,7 @@
     const onMessageStreamEnd = (messageThreadCode: string) => {
         if (threadCode.value === messageThreadCode) {
             streamMessage.value = ''
+            submitting.value = false
             setScrollToBottom()
         }
     }

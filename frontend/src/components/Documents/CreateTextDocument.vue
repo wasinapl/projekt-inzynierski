@@ -2,7 +2,7 @@
     <v-dialog v-model="isDialogOpen" max-width="400">
         <v-card>
             <v-card-title>
-                <span class="text-h5">Add New File/text</span>
+                <span class="text-h5">Add New text</span>
             </v-card-title>
 
             <v-card-text>
@@ -42,11 +42,9 @@
     import { useDocumentsStore } from '@/stores/documentsStore'
     import { ref, computed } from 'vue'
 
-    interface Props {
+    const props = defineProps<{
         documentSetCode: string
-    }
-
-    const props = defineProps<Props>()
+    }>()
 
     const emit = defineEmits(['document-saved'])
     const documentsStore = useDocumentsStore()

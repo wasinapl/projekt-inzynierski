@@ -1,4 +1,8 @@
-import type { CreateDocumentFromTextDTO, ModifyDocumentDTO } from '@/types/dto/DocumentDTO'
+import type {
+    CreateDocumentFromFileDTO,
+    CreateDocumentFromTextDTO,
+    ModifyDocumentDTO,
+} from '@/types/dto/DocumentDTO'
 import axiosInstance from './axiosInstance'
 
 export class DocumentsService {
@@ -13,6 +17,21 @@ export class DocumentsService {
             title: data.title,
             content: data.content,
         })
+        return response.data
+    }
+
+    async createDocumentFromFile(data: CreateDocumentFromFileDTO) {
+        const formData = new FormData()
+
+        formData.append('file', data.file)
+        formData.append('documentsSetCode', data.documentsSetCode)
+
+        const response = await axiosInstance.post('/documents/from-file', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+
         return response.data
     }
 

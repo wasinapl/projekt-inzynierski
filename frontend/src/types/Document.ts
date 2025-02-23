@@ -3,4 +3,5 @@ export interface Document {
     title: string
     content: string
     status: string
+    type: 'TEXT' | 'FILE'
 }
