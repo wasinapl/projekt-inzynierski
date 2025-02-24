@@ -52,9 +52,8 @@
     const router = useRouter()
 
     const logout = () => {
-        authStore.logout().then(() => {
-            router.push('/login')
-        })
+        authStore.logout()
+        router.push('/login')
         drawer.value = false
     }
     const toggleDrawer = () => {

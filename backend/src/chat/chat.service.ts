@@ -84,17 +84,30 @@ export class ChatService {
 
         const messageEmbedding = await this.openai.getEmbedding(message);
 
-        const closestParts = parts.filter((part) => {
-            const partVector: number[] = part.DocumentPartEmbedding
-                .vector as number[];
+        const sortedParts = parts
+            .map((part) => {
+                const partVector = part.DocumentPartEmbedding
+                    .vector as number[];
+                const similarity = this.cosineSimilarity(
+                    messageEmbedding,
+                    partVector
+                );
+                return { ...part, similarity };
+            })
+            .filter((part) => part.similarity > 0.5)
+            .sort((a, b) => b.similarity - a.similarity);
 
-            const similarity = this.cosineSimilarity(
-                messageEmbedding,
-                partVector
-            );
+        let totalTokens = 0;
+        const closestParts: typeof parts = [];
 
-            return similarity > 0.5;
-        });
+        for (const part of sortedParts) {
+            if (totalTokens + part.tokens <= 2000) {
+                closestParts.push(part);
+                totalTokens += part.tokens;
+            } else {
+                break;
+            }
+        }
 
         const partsContentArray = closestParts.map((part) => part.content);
         instruction += `${JSON.stringify(partsContentArray)}`;

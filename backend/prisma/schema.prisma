@@ -58,7 +58,7 @@ model Document {
   id             Int            @id @default(autoincrement())
   code           String         @unique
   title          String
-  content        String         @db.Text
+  content        String         @db.LongText
   documentsSetId Int
   documentsSet   DocumentsSet   @relation(fields: [documentsSetId], references: [id], onDelete: Cascade)
   userId         Int

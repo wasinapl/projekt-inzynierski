@@ -1,11 +1,20 @@
 <template>
     <v-container>
-        {{ documentsSet?.name }}
+        <h1>{{ documentsSet?.name }}</h1>
         <div>
-            <v-btn color="primary" class="ma-2" @click="openTextDialog('new')">
-                Add New Text
-            </v-btn>
-            <v-btn color="primary" class="ma-2" @click="openFileDialog()"> Add New File </v-btn>
+            <div class="d-flex align-center">
+                <h3>Files/Texts</h3>
+                <v-btn color="primary" class="ma-2" @click="openTextDialog('new')">
+                    Add New Text
+                </v-btn>
+                <v-btn color="primary" class="ma-2" @click="openFileDialog()"> Add New File </v-btn>
+            </div>
+            <div
+                v-if="documentsSet && documentsSet?.documents.length == 0"
+                class="d-flex align-center my-4"
+            >
+                <div>There is no texts/files</div>
+            </div>
             <div class="d-flex flex-wrap">
                 <DocumentListItem
                     class="ma-2"
@@ -18,8 +27,8 @@
             </div>
         </div>
         <div>
-            <div class="d-flex">
-                <div>Threads</div>
+            <div class="d-flex align-center">
+                <h3>Threads</h3>
                 <v-btn class="ml-2" color="primary" @click="createNewThread"> New </v-btn>
             </div>
             <v-list>
@@ -34,9 +43,7 @@
                 </template>
 
                 <template v-else-if="!threads || threads.length == 0">
-                    <v-list-item>
-                        <v-list-item-title>No threads found.</v-list-item-title>
-                    </v-list-item>
+                    <div>No threads found.</div>
                 </template>
 
                 <template v-else>
@@ -114,7 +121,7 @@
     }
 
     const deleteThread = (threadCode: string) => {
-        documentsSetsStore.deleteThread(code.value, threadCode)
+        // documentsSetsStore.deleteThread(code.value, threadCode)
     }
 
     const onThreadCLick = (threadCode: string) => {

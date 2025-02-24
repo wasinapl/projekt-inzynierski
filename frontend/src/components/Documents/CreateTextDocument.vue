@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="isDialogOpen" max-width="400">
+    <v-dialog v-model="isDialogOpen" max-width="800">
         <v-card>
             <v-card-title>
                 <span class="text-h5">Add New text</span>
@@ -20,6 +20,7 @@
                         :loading="loading"
                         :rules="[(v) => !!v || 'Content is required']"
                         required
+                        rows="10"
                         no-resize
                     ></v-textarea>
                 </v-form>

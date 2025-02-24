@@ -30,18 +30,16 @@
         <v-dialog v-model="isDialogOpen" max-width="400">
             <v-card>
                 <v-card-title>
-                    <span class="text-h5">Add New KnowledgeBase</span>
+                    <span class="text-h5">Add new knowledge base</span>
                 </v-card-title>
 
                 <v-card-text>
-                    <v-form ref="form" @submit.prevent="addDocumentsSet">
-                        <v-text-field
-                            v-model="newDocumentsSet.name"
-                            label="Name"
-                            :rules="[(v) => !!v || 'Item name is required']"
-                            required
-                        ></v-text-field>
-                    </v-form>
+                    <v-text-field
+                        v-model="newDocumentsSet.name"
+                        label="Name"
+                        :rules="[(v) => !!v || 'Name is required']"
+                        required
+                    ></v-text-field>
                 </v-card-text>
 
                 <v-card-actions>
