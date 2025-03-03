@@ -8,9 +8,15 @@ export class DocumentsSetDto {
     @Expose()
     name: string;
     @Expose()
+    description: string;
+    @Expose()
     @Type(() => DocumentInSetDto)
     documents: DocumentInSetDto[];
     @Expose()
     @Type(() => ThreadDto)
     ChatThreads: ThreadDto[];
+    @Expose()
+    public: boolean;
+    @Expose()
+    createdAt: string;
 }

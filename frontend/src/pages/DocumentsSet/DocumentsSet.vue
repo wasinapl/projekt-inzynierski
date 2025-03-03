@@ -1,6 +1,28 @@
 <template>
     <v-container>
-        <h1>{{ documentsSet?.name }}</h1>
+        <div class="d-flex align-center">
+            <h1>{{ documentsSet?.name }}</h1>
+            <v-btn
+                class="ml-2"
+                density="compact"
+                variant="text"
+                icon="mdi-pencil"
+                @click="openEditNameDialog"
+            ></v-btn>
+        </div>
+        <v-switch v-model="isPublic" label="Is Public" color="primary"></v-switch>
+        <div class="d-flex align-center">
+            <h3 v-if="documentsSet?.description">Description</h3>
+            <v-btn
+                class="ml-2"
+                density="compact"
+                variant="text"
+                icon="mdi-pencil"
+                @click="openEditDescriptionDialog"
+            ></v-btn>
+        </div>
+        <div v-if="documentsSet?.description">{{ documentsSet?.description }}</div>
+        <div v-else="documentsSet?.description">No description</div>
         <div>
             <div class="d-flex align-center">
                 <h3>Files/Texts</h3>
@@ -28,7 +50,7 @@
         </div>
         <div>
             <div class="d-flex align-center">
-                <h3>Threads</h3>
+                <h3>Last threads</h3>
                 <v-btn class="ml-2" color="primary" @click="createNewThread"> New </v-btn>
             </div>
             <v-list>
@@ -76,16 +98,20 @@
             @document-saved="loadDocumentsSet"
         />
         <DeleteDocument ref="deleteDocumentDialog" @document-deleted="loadDocumentsSet" />
+        <EditDocumentsSetName ref="editDocumentsSetName" @saved="loadDocumentsSet" />
+        <EditDocumentsSetDescription ref="editDocumentsSetDescription" @saved="loadDocumentsSet" />
     </v-container>
 </template>
 
 <script lang="ts" setup>
     import { useDocumentsSetsStore } from '@/stores/documentsSetsStore'
-    import { ref, computed } from 'vue'
+    import { ref, computed, watch } from 'vue'
     import { useRoute, useRouter } from 'vue-router'
     import CreateTextDocument from '@/components/Documents/CreateTextDocument.vue'
     import CreateFileDocument from '@/components/Documents/CreateFileDocument.vue'
     import DeleteDocument from '@/components/Documents/DeleteDocument.vue'
+    import EditDocumentsSetName from '@/components/DocumentsSets/EditDocumentsSetName.vue'
+    import EditDocumentsSetDescription from '@/components/DocumentsSets/EditDocumentsSetDescription.vue'
     import DocumentListItem from '@/components/Documents/DocumentListItem.vue'
 
     const documentsSetsStore = useDocumentsSetsStore()
@@ -98,13 +124,22 @@
     const documentTextDialog = ref<{ openDialog: (code: string) => void } | null>(null)
     const documentFileDialog = ref<{ openDialog: () => void } | null>(null)
     const deleteDocumentDialog = ref<{ openDialog: (code: string) => void } | null>(null)
+    const editDocumentsSetName = ref<{ openDialog: (code: string, name: string) => void } | null>(
+        null
+    )
+    const editDocumentsSetDescription = ref<{
+        openDialog: (code: string, description: string) => void
+    } | null>(null)
 
     const documentsSet = computed(() => documentsSetsStore.documentsSet.data)
     const threads = computed(() => documentsSet.value?.ChatThreads)
     const loading = computed(() => documentsSetsStore.documentsSet.loading)
 
-    const loadDocumentsSet = () => {
-        documentsSetsStore.fetchDocumentsSet(code.value)
+    const isPublic = ref(false)
+
+    const loadDocumentsSet = async () => {
+        await documentsSetsStore.fetchDocumentsSet(code.value)
+        isPublic.value = !!documentsSet.value?.public
     }
     const openTextDialog = (docCode: string) => {
         documentTextDialog.value?.openDialog(docCode)
@@ -115,18 +150,33 @@
     const openDeleteDialog = (docCode: string) => {
         deleteDocumentDialog.value?.openDialog(docCode)
     }
+    const openEditNameDialog = () => {
+        if (documentsSet.value?.code && documentsSet.value?.name)
+            editDocumentsSetName.value?.openDialog(
+                documentsSet.value?.code,
+                documentsSet.value?.name
+            )
+    }
+
+    const openEditDescriptionDialog = () => {
+        if (documentsSet.value?.code)
+            editDocumentsSetDescription.value?.openDialog(
+                documentsSet.value?.code,
+                documentsSet.value?.description || ''
+            )
+    }
 
     const createNewThread = () => {
         router.push({ name: 'Chat', params: { code: 'new' }, query: { documentsSet: code.value } })
     }
 
-    const deleteThread = (threadCode: string) => {
-        // documentsSetsStore.deleteThread(code.value, threadCode)
-    }
-
     const onThreadCLick = (threadCode: string) => {
         router.push({ name: 'Chat', params: { code: threadCode } })
     }
+
+    watch(isPublic, (newVal) => {
+        documentsSetsStore.updateDocumentsSet(code.value, { public: newVal })
+    })
 
     loadDocumentsSet()
 </script>

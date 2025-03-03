@@ -1,31 +1,25 @@
 <template>
     <v-container>
-        <v-btn color="primary" @click="openDialog">Add New Knowledgebase</v-btn>
+        <v-btn color="primary" @click="openDialog">Create Knowledge base</v-btn>
 
-        <v-list>
-            <template v-if="loading">
-                <v-list-item v-for="n in 5" :key="'skeleton-' + n" class="clickable">
-                    <v-skeleton-loader type="text" :width="200" class="mb-2"></v-skeleton-loader>
-                </v-list-item>
+        <v-data-table-server
+            v-model:items-per-page="itemsPerPage"
+            :headers="headers"
+            :items="documentsSets"
+            :items-length="totalItems"
+            :loading="loading"
+            item-value="name"
+            @update:options="loadItems"
+            @click:row="onDocumentsSetCLick"
+        >
+            <template v-slot:item.isPublic="{ item }">
+                <v-icon v-if="item.public">mdi-lock-open-variant</v-icon>
+                <v-icon v-else>mdi-lock</v-icon>
             </template>
-
-            <template v-else-if="documentsSets.length == 0">
-                <v-list-item>
-                    <v-list-item-title>No knowledgebases found.</v-list-item-title>
-                </v-list-item>
+            <template v-slot:item.createdAt="{ item }">
+                {{ convertUtcToLocal(item.createdAt) }}
             </template>
-
-            <template v-else>
-                <v-list-item
-                    v-for="documentsSet in documentsSets"
-                    :key="documentsSet.code"
-                    class="clickable"
-                    @click="onDocumentsSetCLick(documentsSet.code)"
-                >
-                    <v-list-item-title>{{ documentsSet.name }}</v-list-item-title>
-                </v-list-item>
-            </template>
-        </v-list>
+        </v-data-table-server>
 
         <v-dialog v-model="isDialogOpen" max-width="400">
             <v-card>
@@ -61,21 +55,31 @@
 
 <script lang="ts" setup>
     import { useDocumentsSetsStore } from '@/stores/documentsSetsStore'
+    import type { DocumentsSet } from '@/types/DocumentsSet'
     import type { CreateDocumentsSetDTO } from '@/types/dto/DocumentsSetDTO'
     import { ref, computed } from 'vue'
     import { useRouter } from 'vue-router'
+    import { convertUtcToLocal } from '@/utils/date'
+
     const documentsSetsStore = useDocumentsSetsStore()
     const router = useRouter()
 
-    documentsSetsStore.fetchDocumentsSets()
-
     const documentsSets = computed(() => documentsSetsStore.documentsSets.data)
     const loading = computed(() => documentsSetsStore.documentsSets.loading)
+    const totalItems = computed(() => documentsSetsStore.documentsSets.totalItems)
     const isDialogOpen = ref(false)
     const form = ref()
     const form_loading = ref(false)
     const form_error = ref(false)
-    const newDocumentsSet = ref<CreateDocumentsSetDTO>({ name: '' })
+    const newDocumentsSet = ref<CreateDocumentsSetDTO>({ name: '', description: '', public: false })
+    const itemsPerPage = ref(10)
+
+    const headers = [
+        { title: 'Name', key: 'name', align: 'start', sortable: true },
+        { title: 'Description', key: 'description', sortable: false },
+        { title: 'Public', key: 'isPublic', align: 'end', sortable: true },
+        { title: 'Create date', key: 'createdAt', align: 'end', sortable: true },
+    ]
 
     const openDialog = () => {
         isDialogOpen.value = true
@@ -92,7 +96,7 @@
             documentsSetsStore
                 .createDocumentsSet(newDocumentsSet.value)
                 .then((res) => {
-                    documentsSetsStore.fetchDocumentsSets()
+                    documentsSetsStore.fetchDocumentsSets(1, itemsPerPage.value)
                     closeDialog()
                 })
                 .catch((err) => {
@@ -104,16 +108,19 @@
         }
     }
 
-    const onDocumentsSetCLick = (code: string) => {
-        router.push({ name: 'KnowledgeBase', params: { code: code } })
-    }
-</script>
-<style lang="css" scoped>
-    .clickable {
-        cursor: pointer;
+    const loadItems = async (data: any) => {
+        const { page, itemsPerPage, sortBy } = data
+        let orderBy = undefined
+        let order = undefined
+        if (sortBy.length > 0) {
+            orderBy = sortBy[0].key
+            order = sortBy[0].order
+        }
+        await documentsSetsStore.fetchDocumentsSets(page, itemsPerPage, orderBy, order)
     }
 
-    .clickable:hover {
-        background-color: rgba(0, 0, 0, 0.04);
+    const onDocumentsSetCLick = (event: Event, { item }: { item: DocumentsSet }) => {
+        router.push({ name: 'KnowledgeBase', params: { code: item.code } })
     }
-</style>
+</script>
+<style lang="css" scoped></style>

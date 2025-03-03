@@ -25,16 +25,36 @@ export class DocumentsSetService {
         });
     }
 
-    async getDocumentsSets(userId: number) {
+    async getDocumentsSets(
+        userId: number,
+        page: number,
+        limit: number,
+        sortBy: string = 'createdAt',
+        order: 'asc' | 'desc' = 'desc'
+    ) {
+        const skip = (page - 1) * limit;
+        const orderBy = sortBy ? { [sortBy]: order } : undefined;
+
         const documentsSets = await this.prisma.documentsSet.findMany({
             where: { userId },
+            skip,
+            take: limit,
+            orderBy,
             include: {
                 documents: true,
             },
         });
-        return plainToInstance(DocumentsSetDto, documentsSets, {
-            excludeExtraneousValues: true,
+
+        const totalItems = await this.prisma.documentsSet.count({
+            where: { userId },
         });
+
+        return {
+            items: plainToInstance(DocumentsSetDto, documentsSets, {
+                excludeExtraneousValues: true,
+            }),
+            totalItems,
+        };
     }
 
     async getDocumentsSetByCode(code: string, userId: number) {

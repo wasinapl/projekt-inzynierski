@@ -6,8 +6,9 @@ import type { CreateDocumentsSetDTO, ModifyDocumentsSetDTO } from '@/types/dto/D
 interface DocumentsSetsState {
     documentsSets: {
         data: DocumentsSet[]
+        totalItems: number
         loading: boolean
-    },
+    }
     documentsSet: {
         data: DocumentsSet | null
         loading: boolean
@@ -18,6 +19,7 @@ export const useDocumentsSetsStore = defineStore('documentsSets', {
     state: (): DocumentsSetsState => ({
         documentsSets: {
             data: [],
+            totalItems: 0,
             loading: false,
         },
         documentsSet: {
@@ -26,9 +28,21 @@ export const useDocumentsSetsStore = defineStore('documentsSets', {
         },
     }),
     actions: {
-        async fetchDocumentsSets() {
+        async fetchDocumentsSets(
+            page: number = 1,
+            limit: number = 10,
+            sortBy?: string,
+            order?: 'asc' | 'desc'
+        ) {
             this.documentsSets.loading = true
-            this.documentsSets.data = await DocumentsSetsService.getAllDocumentsSets()
+            const { items, totalItems } = await DocumentsSetsService.getAllDocumentsSets(
+                page,
+                limit,
+                sortBy,
+                order
+            )
+            this.documentsSets.data = items
+            this.documentsSets.totalItems = totalItems
             this.documentsSets.loading = false
         },
         async fetchDocumentsSet(code: string) {

@@ -11,6 +11,9 @@ import {
     UsePipes,
     ValidationPipe,
     NotFoundException,
+    Query,
+    DefaultValuePipe,
+    ParseIntPipe,
 } from '@nestjs/common';
 import { DocumentsSetService } from './documents-set.service';
 import { CreateDocumentSetDto } from './dto/create-documents-set.dto';
@@ -32,8 +35,21 @@ export class DocumentsSetController {
     }
 
     @Get()
-    getAll(@Request() req) {
-        return this.documentsSetService.getDocumentsSets(req.user.id);
+    getAll(
+        @Request() req,
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+        @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+        @Query('sortBy', new DefaultValuePipe('createdAt')) sortBy: string,
+        @Query('order', new DefaultValuePipe('asc'))
+        order: 'asc' | 'desc' = 'asc'
+    ) {
+        return this.documentsSetService.getDocumentsSets(
+            req.user.id,
+            page,
+            limit,
+            sortBy,
+            order
+        );
     }
 
     @Get(':code')

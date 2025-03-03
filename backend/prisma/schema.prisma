@@ -46,12 +46,14 @@ model DocumentsSet {
   id          Int          @id @default(autoincrement())
   code        String       @unique
   name        String
+  description String?
   userId      Int?
   User        User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
   documents   Document[]   @relation()
   ChatThreads ChatThread[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  public      Boolean      @default(false)
 }
 
 model Document {

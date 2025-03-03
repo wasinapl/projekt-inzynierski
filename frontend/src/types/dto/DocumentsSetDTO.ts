@@ -1,7 +1,11 @@
 export interface CreateDocumentsSetDTO {
     name: string
+    description: string
+    public: boolean
 }
 
 export interface ModifyDocumentsSetDTO {
-    name: string
+    name?: string
+    description?: string
+    public?: boolean
 }
