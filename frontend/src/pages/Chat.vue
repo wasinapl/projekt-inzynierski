@@ -1,7 +1,7 @@
 <template>
     <div class="chat-view">
         <div class="chat-options">
-            <v-select
+            <v-autocomplete
                 v-if="isNew"
                 v-model="documentsSetCode"
                 label="Select knowledge base"
@@ -9,9 +9,9 @@
                 item-value="code"
                 :items="documentsSets"
                 variant="outlined"
-            ></v-select>
+            ></v-autocomplete>
             <div v-else>
-                This thread have knowledge from knowledge base:
+                This thread have knowledge from:
                 {{ thread?.DocumentsSet.name }}
             </div>
         </div>
@@ -47,13 +47,12 @@
 <script lang="ts" setup>
     import { useRoute, useRouter } from 'vue-router'
     import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-    import { useDocumentsSetsStore } from '@/stores/documentsSetsStore'
+    import DocumentsSetsService from '@/services/documentsSetsService'
     import { useThreadsStore } from '@/stores/threadsStore'
     import type { Message } from '@/types/Message'
     import { connectSocket } from '@/sockets/chatSocket'
 
     const socket = connectSocket()
-    const documentsSetsStore = useDocumentsSetsStore()
     const threadsStore = useThreadsStore()
     const route = useRoute()
     const router = useRouter()
@@ -92,7 +91,7 @@
     )
 
     const isNew = computed(() => threadCode.value === 'new')
-    const documentsSets = computed(() => documentsSetsStore.documentsSets.data)
+    const documentsSets = ref<DocumentsSet[]>([])
     const thread = computed(() => threadsStore.thread.data)
 
     const sendMessage = async () => {
@@ -159,7 +158,9 @@
         socket.off('message-stream-end', onMessageStreamEnd)
     })
 
-    documentsSetsStore.fetchDocumentsSets()
+    DocumentsSetsService.getAllDocumentsSets().then((response) => {
+        documentsSets.value = response.items
+    })
 </script>
 
 <style scoped>

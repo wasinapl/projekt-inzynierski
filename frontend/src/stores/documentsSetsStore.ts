@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import DocumentsSetsService from '../services/documentsSetsService'
+import DocumentsSetsService from '@/services/documentsSetsService'
 import type { DocumentsSet } from '@/types/DocumentsSet'
 import type { CreateDocumentsSetDTO, ModifyDocumentsSetDTO } from '@/types/dto/DocumentsSetDTO'
 
@@ -32,14 +32,20 @@ export const useDocumentsSetsStore = defineStore('documentsSets', {
             page: number = 1,
             limit: number = 10,
             sortBy?: string,
-            order?: 'asc' | 'desc'
+            order?: 'asc' | 'desc',
+            publicOnly: boolean = false,
+            importedOnly: boolean = false,
+            search?: string
         ) {
             this.documentsSets.loading = true
-            const { items, totalItems } = await DocumentsSetsService.getAllDocumentsSets(
+            const { items, totalItems } = await DocumentsSetsService.getDocumentsSets(
                 page,
                 limit,
                 sortBy,
-                order
+                order,
+                publicOnly,
+                importedOnly,
+                search
             )
             this.documentsSets.data = items
             this.documentsSets.totalItems = totalItems
@@ -51,13 +57,19 @@ export const useDocumentsSetsStore = defineStore('documentsSets', {
             this.documentsSet.loading = false
         },
         async createDocumentsSet(data: CreateDocumentsSetDTO) {
-            await DocumentsSetsService.createDocumentsSet(data)
+            return await DocumentsSetsService.createDocumentsSet(data)
         },
         async updateDocumentsSet(code: string, data: ModifyDocumentsSetDTO) {
             await DocumentsSetsService.updateDocumentsSet(code, data)
         },
         async deleteDocumentsSet(code: string) {
             await DocumentsSetsService.deleteDocumentsSet(code)
+        },
+        async importDocumentsSet(code: string) {
+            await DocumentsSetsService.importDocumentsSet(code)
+        },
+        async removeImportDocumentsSet(code: string) {
+            await DocumentsSetsService.removeImportDocumentsSet(code)
         },
     },
 })

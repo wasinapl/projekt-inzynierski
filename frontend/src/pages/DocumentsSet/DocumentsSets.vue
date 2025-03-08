@@ -2,24 +2,22 @@
     <v-container>
         <v-btn color="primary" @click="openDialog">Create Knowledge base</v-btn>
 
-        <v-data-table-server
-            v-model:items-per-page="itemsPerPage"
-            :headers="headers"
-            :items="documentsSets"
-            :items-length="totalItems"
-            :loading="loading"
-            item-value="name"
-            @update:options="loadItems"
-            @click:row="onDocumentsSetCLick"
-        >
-            <template v-slot:item.isPublic="{ item }">
-                <v-icon v-if="item.public">mdi-lock-open-variant</v-icon>
-                <v-icon v-else>mdi-lock</v-icon>
-            </template>
-            <template v-slot:item.createdAt="{ item }">
-                {{ convertUtcToLocal(item.createdAt) }}
-            </template>
-        </v-data-table-server>
+        <div class="my-4">
+            <v-btn-toggle v-model="documentsSetsType" mandatory>
+                <v-btn value="my">My Document Sets</v-btn>
+                <v-btn value="public">Public Document Sets</v-btn>
+            </v-btn-toggle>
+        </div>
+
+        <v-text-field
+            v-model="search"
+            class="ma-2"
+            density="compact"
+            placeholder="Search name..."
+            hide-details
+        ></v-text-field>
+        <DocumentsSetsTable :search="search" v-if="documentsSetsType == 'my'" />
+        <DocumentsSetsPublicTable :search="search" v-else-if="documentsSetsType == 'public'" />
 
         <v-dialog v-model="isDialogOpen" max-width="400">
             <v-card>
@@ -55,31 +53,23 @@
 
 <script lang="ts" setup>
     import { useDocumentsSetsStore } from '@/stores/documentsSetsStore'
-    import type { DocumentsSet } from '@/types/DocumentsSet'
     import type { CreateDocumentsSetDTO } from '@/types/dto/DocumentsSetDTO'
-    import { ref, computed } from 'vue'
+    import { ref } from 'vue'
     import { useRouter } from 'vue-router'
-    import { convertUtcToLocal } from '@/utils/date'
+    import DocumentsSetsTable from '@/components/DocumentsSets/DocumentsSetsTable.vue'
+    import DocumentsSetsPublicTable from '@/components/DocumentsSets/DocumentsSetsPublicTable.vue'
 
     const documentsSetsStore = useDocumentsSetsStore()
     const router = useRouter()
 
-    const documentsSets = computed(() => documentsSetsStore.documentsSets.data)
-    const loading = computed(() => documentsSetsStore.documentsSets.loading)
-    const totalItems = computed(() => documentsSetsStore.documentsSets.totalItems)
     const isDialogOpen = ref(false)
     const form = ref()
     const form_loading = ref(false)
     const form_error = ref(false)
     const newDocumentsSet = ref<CreateDocumentsSetDTO>({ name: '', description: '', public: false })
     const itemsPerPage = ref(10)
-
-    const headers = [
-        { title: 'Name', key: 'name', align: 'start', sortable: true },
-        { title: 'Description', key: 'description', sortable: false },
-        { title: 'Public', key: 'isPublic', align: 'end', sortable: true },
-        { title: 'Create date', key: 'createdAt', align: 'end', sortable: true },
-    ]
+    const search = ref('')
+    const documentsSetsType = ref('my')
 
     const openDialog = () => {
         isDialogOpen.value = true
@@ -96,7 +86,7 @@
             documentsSetsStore
                 .createDocumentsSet(newDocumentsSet.value)
                 .then((res) => {
-                    documentsSetsStore.fetchDocumentsSets(1, itemsPerPage.value)
+                    router.push(`/knowledgebases/${res.code}`)
                     closeDialog()
                 })
                 .catch((err) => {
@@ -106,21 +96,6 @@
                     form_loading.value = false
                 })
         }
-    }
-
-    const loadItems = async (data: any) => {
-        const { page, itemsPerPage, sortBy } = data
-        let orderBy = undefined
-        let order = undefined
-        if (sortBy.length > 0) {
-            orderBy = sortBy[0].key
-            order = sortBy[0].order
-        }
-        await documentsSetsStore.fetchDocumentsSets(page, itemsPerPage, orderBy, order)
-    }
-
-    const onDocumentsSetCLick = (event: Event, { item }: { item: DocumentsSet }) => {
-        router.push({ name: 'KnowledgeBase', params: { code: item.code } })
     }
 </script>
 <style lang="css" scoped></style>

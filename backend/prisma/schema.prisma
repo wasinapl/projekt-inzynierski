@@ -32,28 +32,41 @@ enum DocumentPartStatus {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique
-  name         String?
-  password     String
-  role         Role           @default(USER)
-  Document     Document[]
-  DocumentsSet DocumentsSet[]
-  ChatThread   ChatThread[]
+  id                   Int                    @id @default(autoincrement())
+  email                String                 @unique
+  name                 String?
+  password             String
+  role                 Role                   @default(USER)
+  Document             Document[]
+  DocumentsSet         DocumentsSet[]
+  ChatThread           ChatThread[]
+  ImportedDocumentsSet ImportedDocumentsSet[]
 }
 
 model DocumentsSet {
-  id          Int          @id @default(autoincrement())
-  code        String       @unique
-  name        String
-  description String?
-  userId      Int?
-  User        User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  documents   Document[]   @relation()
-  ChatThreads ChatThread[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  public      Boolean      @default(false)
+  id                   Int                    @id @default(autoincrement())
+  code                 String                 @unique
+  name                 String
+  description          String?
+  userId               Int?
+  User                 User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents            Document[]             @relation()
+  ChatThreads          ChatThread[]
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  public               Boolean                @default(false)
+  ImportedDocumentsSet ImportedDocumentsSet[]
+}
+
+model ImportedDocumentsSet {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentsSetId Int
+  documentsSet   DocumentsSet @relation(fields: [documentsSetId], references: [id], onDelete: Cascade)
+  importedAt     DateTime     @default(now())
+
+  @@unique([userId, documentsSetId])
 }
 
 model Document {

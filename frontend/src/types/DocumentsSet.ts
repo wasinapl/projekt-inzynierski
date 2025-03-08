@@ -9,4 +9,5 @@ export interface DocumentsSet {
     ChatThreads: Thread[]
     public: boolean
     createdAt: string
+    isImported?: boolean
 }

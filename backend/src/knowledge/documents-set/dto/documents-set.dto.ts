@@ -19,4 +19,6 @@ export class DocumentsSetDto {
     public: boolean;
     @Expose()
     createdAt: string;
+    @Expose()
+    isImported: boolean;
 }

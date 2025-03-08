@@ -2,11 +2,14 @@ import type { CreateDocumentsSetDTO, ModifyDocumentsSetDTO } from '@/types/dto/D
 import axiosInstance from './axiosInstance'
 
 export class DocumentsSetsService {
-    async getAllDocumentsSets(
+    async getDocumentsSets(
         page: number = 1,
         limit: number = 10,
         sortBy?: string,
-        order?: 'asc' | 'desc'
+        order?: 'asc' | 'desc',
+        publicOnly?: boolean,
+        importedOnly?: boolean,
+        search?: string
     ) {
         const response = await axiosInstance.get('/documents-sets', {
             params: {
@@ -14,8 +17,16 @@ export class DocumentsSetsService {
                 limit,
                 sortBy,
                 order,
+                public: publicOnly,
+                imported: importedOnly,
+                search,
             },
         })
+        return response.data
+    }
+
+    async getAllDocumentsSets() {
+        const response = await axiosInstance.get('/documents-sets/all')
         return response.data
     }
 
@@ -44,6 +55,16 @@ export class DocumentsSetsService {
 
     async deleteDocumentsSet(code: string) {
         const response = await axiosInstance.delete(`/documents-sets/${code}`)
+        return response.data
+    }
+
+    async importDocumentsSet(code: string) {
+        const response = await axiosInstance.post(`/documents-sets/import/${code}`)
+        return response.data
+    }
+
+    async removeImportDocumentsSet(code: string) {
+        const response = await axiosInstance.delete(`/documents-sets/import/${code}`)
         return response.data
     }
 }

@@ -9,10 +9,13 @@
                 icon="mdi-pencil"
                 @click="openEditNameDialog"
             ></v-btn>
+            <v-btn class="ml-2" variant="text" color="error" @click="openDeleteDialog"
+                >delete</v-btn
+            >
         </div>
         <v-switch v-model="isPublic" label="Is Public" color="primary"></v-switch>
         <div class="d-flex align-center">
-            <h3 v-if="documentsSet?.description">Description</h3>
+            <h3>Description</h3>
             <v-btn
                 class="ml-2"
                 density="compact"
@@ -43,7 +46,7 @@
                     v-for="document in documentsSet?.documents"
                     :key="document.code"
                     :document="document"
-                    @on-delete-click="openDeleteDialog(document.code)"
+                    @on-delete-click="openDeleteDocumentDialog(document.code)"
                     @on-edit-click="openTextDialog(document.code)"
                 />
             </div>
@@ -97,6 +100,7 @@
             :document-set-code="code"
             @document-saved="loadDocumentsSet"
         />
+        <DeleteDocumentsSet ref="deleteDialog" @deleted="goToList" />
         <DeleteDocument ref="deleteDocumentDialog" @document-deleted="loadDocumentsSet" />
         <EditDocumentsSetName ref="editDocumentsSetName" @saved="loadDocumentsSet" />
         <EditDocumentsSetDescription ref="editDocumentsSetDescription" @saved="loadDocumentsSet" />
@@ -109,6 +113,7 @@
     import { useRoute, useRouter } from 'vue-router'
     import CreateTextDocument from '@/components/Documents/CreateTextDocument.vue'
     import CreateFileDocument from '@/components/Documents/CreateFileDocument.vue'
+    import DeleteDocumentsSet from '@/components/DocumentsSets/DeleteDocumentsSet.vue'
     import DeleteDocument from '@/components/Documents/DeleteDocument.vue'
     import EditDocumentsSetName from '@/components/DocumentsSets/EditDocumentsSetName.vue'
     import EditDocumentsSetDescription from '@/components/DocumentsSets/EditDocumentsSetDescription.vue'
@@ -123,6 +128,7 @@
     )
     const documentTextDialog = ref<{ openDialog: (code: string) => void } | null>(null)
     const documentFileDialog = ref<{ openDialog: () => void } | null>(null)
+    const deleteDialog = ref<{ openDialog: (code: string) => void } | null>(null)
     const deleteDocumentDialog = ref<{ openDialog: (code: string) => void } | null>(null)
     const editDocumentsSetName = ref<{ openDialog: (code: string, name: string) => void } | null>(
         null
@@ -147,8 +153,11 @@
     const openFileDialog = () => {
         documentFileDialog.value?.openDialog()
     }
-    const openDeleteDialog = (docCode: string) => {
+    const openDeleteDocumentDialog = (docCode: string) => {
         deleteDocumentDialog.value?.openDialog(docCode)
+    }
+    const openDeleteDialog = () => {
+        deleteDialog.value?.openDialog(code.value)
     }
     const openEditNameDialog = () => {
         if (documentsSet.value?.code && documentsSet.value?.name)
@@ -172,6 +181,10 @@
 
     const onThreadCLick = (threadCode: string) => {
         router.push({ name: 'Chat', params: { code: threadCode } })
+    }
+
+    const goToList = () => {
+        router.push({ name: 'KnowledgeBases' })
     }
 
     watch(isPublic, (newVal) => {
