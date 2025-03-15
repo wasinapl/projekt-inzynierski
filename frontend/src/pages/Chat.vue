@@ -51,6 +51,7 @@
     import { useThreadsStore } from '@/stores/threadsStore'
     import type { Message } from '@/types/Message'
     import { connectSocket } from '@/sockets/chatSocket'
+    import type { DocumentsSet } from '@/types/DocumentsSet'
 
     const socket = connectSocket()
     const threadsStore = useThreadsStore()

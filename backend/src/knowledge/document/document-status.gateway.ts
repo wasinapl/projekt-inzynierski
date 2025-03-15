@@ -26,8 +26,6 @@ export class DocumentStatusGateway
     @WebSocketServer() server: Server;
 
     afterInit(server: Server) {
-        this.logger.log('Gateway Initialized');
-
         server.use((socket: Socket, next) => {
             this.wsJwtMiddleware.use(socket, next);
         });
@@ -37,11 +35,7 @@ export class DocumentStatusGateway
         const user = client.handshake.auth.user;
         if (user && user.id) {
             client.join(user.id.toString());
-            this.logger.log(`User connected and joined room: ${user.id}`);
         } else {
-            this.logger.warn(
-                'User connected without valid auth information. Disconnecting...'
-            );
             client.disconnect(true);
         }
     }
@@ -51,7 +45,6 @@ export class DocumentStatusGateway
     }
 
     sendStatusUpdate(documentCode: string, status: string, userId: number) {
-        this.logger.log('Sending status update to user:', userId);
         this.server
             .to(userId.toString())
             .emit('status-update', { documentCode, status });

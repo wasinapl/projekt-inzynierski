@@ -22,7 +22,7 @@
 
 <script lang="ts" setup>
     import { useDocumentsSetsStore } from '@/stores/documentsSetsStore'
-    import { computed, ref } from 'vue'
+    import { computed, readonly, ref } from 'vue'
     import { convertUtcToLocal } from '@/utils/date'
     import { useRouter } from 'vue-router'
     import type { DocumentsSet } from '@/types/DocumentsSet'
@@ -31,15 +31,22 @@
         search: string
     }>()
 
+    interface Header {
+        title: string
+        key: string
+        align?: 'start' | 'end' | 'center'
+        sortable?: boolean
+    }
+
     const documentsSetsStore = useDocumentsSetsStore()
     const router = useRouter()
     const itemsPerPage = ref(10)
-    const headers = [
+    const headers: Readonly<Header[]> = readonly([
         { title: 'Name', key: 'name', align: 'start', sortable: true },
-        { title: 'Description', key: 'description', sortable: false },
+        { title: 'Description', key: 'description', align: 'start', sortable: false },
         { title: 'Public', key: 'public', align: 'end', sortable: true },
         { title: 'Create date', key: 'createdAt', align: 'end', sortable: true },
-    ]
+    ])
     const documentsSets = computed(() => documentsSetsStore.documentsSets.data)
     const loading = computed(() => documentsSetsStore.documentsSets.loading)
     const totalItems = computed(() => documentsSetsStore.documentsSets.totalItems)

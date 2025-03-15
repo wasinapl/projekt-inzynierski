@@ -30,7 +30,7 @@
 
 <script lang="ts" setup>
     import { useDocumentsSetsStore } from '@/stores/documentsSetsStore'
-    import { computed, ref, watch } from 'vue'
+    import { computed, readonly, ref, watch } from 'vue'
     import { convertUtcToLocal } from '@/utils/date'
     import { useRouter } from 'vue-router'
 
@@ -42,12 +42,19 @@
     const router = useRouter()
     const itemsPerPage = ref(10)
     const importedOnly = ref<boolean>(false)
-    const headers = [
+    interface Header {
+        title: string
+        key: string
+        align?: 'start' | 'end' | 'center'
+        sortable?: boolean
+    }
+
+    const headers: Readonly<Header[]> = readonly([
         { title: 'Name', key: 'name', align: 'start', sortable: true },
-        { title: 'Description', key: 'description', sortable: false },
+        { title: 'Description', key: 'description', align: 'start', sortable: false },
         { title: 'Create date', key: 'createdAt', align: 'end', sortable: true },
         { title: 'Actions', key: 'actions', align: 'end', sortable: false },
-    ]
+    ])
     const documentsSets = computed(() => documentsSetsStore.documentsSets.data)
     const loading = computed(() => documentsSetsStore.documentsSets.loading)
     const totalItems = computed(() => documentsSetsStore.documentsSets.totalItems)

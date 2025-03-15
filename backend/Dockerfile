@@ -1,11 +1,32 @@
-# Use the official Redis image as the base image
-FROM redis:latest
+# Użycie oficjalnego obrazu Node.js
+FROM node:18-alpine
 
-# Set the working directory inside the container
+# Instalacja zależności systemowych do budowania natywnych modułów
+RUN apk add --no-cache python3 make g++
+
+# Ustawienie katalogu roboczego
 WORKDIR /app
 
-# Expose the Redis default port
-EXPOSE 6379
+# Kopiowanie plików package.json i package-lock.json przed instalacją
+COPY package*.json ./
 
-# Command to start Redis server
-CMD ["redis-server"]
+# Instalacja globalnego NestJS CLI
+RUN npm install -g @nestjs/cli
+
+# Instalacja zależności aplikacji
+RUN npm install --omit=dev  && npm install --save-dev @types/express
+
+# Kopiowanie reszty aplikacji
+COPY . .
+
+# Generowanie Prisma Client
+RUN npx prisma generate
+
+# Budowanie aplikacji
+RUN npm run build
+
+# Otwieranie portu
+EXPOSE 3000
+
+# Uruchomienie aplikacji w trybie produkcyjnym
+CMD ["npm", "run", "start:prod"]
