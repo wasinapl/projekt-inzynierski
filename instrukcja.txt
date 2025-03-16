@@ -1,0 +1,120 @@
+# Instrukcja uruchamiania projektu
+
+## Tryb deweloperski
+
+### 1. Przygotowanie plików konfiguracyjnych
+Upewnij się, że w katalogach `backend/` oraz `frontend/` znajdują się odpowiednie pliki `.env.dev` z następującą zawartością:
+
+**Backend - `backend/.env.dev`**
+DATABASE_URL=mysql://user:password@mysql:3306/inz_dev 
+PORT=3000 
+JWT_SECRET=somesecret
+REDIS_URL=redis 
+REDIS_PORT=6379 
+OPENAI_API_KEY=sk-proj-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+**Frontend - `frontend/.env.dev`**
+VITE_API_URL="http://localhost:3000"
+
+
+### 2. Uruchomienie kontenerów Dockera w trybie deweloperskim
+Aby uruchomić wymagane usługi (`mysql`, `redis`), wykonaj w terminalu komendę:
+
+docker-compose -f docker-compose.dev.yml up -d
+
+- Opcja `-d` uruchamia kontenery w tle.
+- Plik `docker-compose.dev.yml` zawiera konfigurację bazodanową (`MySQL` i `Redis`), które są wymagane dla backendu.
+
+### 3. Uruchomienie backendu
+
+Przejdź do katalogu `backend/`:
+
+cd backend
+
+Zainstaluj zależności:
+
+npm install
+
+Uruchom backend w trybie deweloperskim:
+
+npm run start:dev
+
+### 4. Uruchomienie frontend
+
+Przejdź do katalogu `frontend/`:
+
+cd frontend
+
+Zainstaluj zależności:
+
+npm install
+
+Uruchom frontend w trybie deweloperskim:
+
+npm run dev
+
+### 5. Sprawdzenie działania
+
+- Backend powinien być dostępny pod adresem: `http://localhost:3000`
+- Frontend powinien być dostępny pod adresem: `http://localhost:5173` (lub innym, jeśli `Vite` przypisał inny port, sprawdź terminal)
+
+
+### 6. Zatrzymanie kontenerów Dockera (dev)
+
+Jeśli chcesz zatrzymać uruchomione kontenery:
+
+docker-compose -f docker-compose.dev.yml down
+
+
+Jeśli chcesz usunąć kontenery i ich dane:
+
+docker-compose -f docker-compose.dev.yml down -v
+
+---
+
+## Tryb produkcyjny
+
+### 1. Przygotowanie plików konfiguracyjnych
+Upewnij się, że w katalogach `backend/` oraz `frontend/` znajdują się odpowiednie pliki `.env` z następującą zawartością:
+
+**Backend - `backend/.env`**
+DATABASE_URL=mysql://user:password@mysql:3306/inz
+PORT=3000 
+JWT_SECRET=somesecret
+REDIS_URL=redis 
+REDIS_PORT=6379 
+OPENAI_API_KEY=sk-proj-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+**Frontend - `frontend/.env`**
+VITE_API_URL="http://localhost:3000"
+
+### 2. Uruchomienie kontenerów Dockera w trybie produkcyjnym
+Aby uruchomić cały system w trybie produkcyjnym, wykonaj:
+
+docker-compose up -d --build
+
+- `--build` wymusza ponowne zbudowanie obrazów Dockerowych, jeśli zaszły zmiany w kodzie.
+- Opcja `-d` uruchamia kontenery w tle.
+
+Kontenery w trybie produkcyjnym:
+- Backend zostanie uruchomiony na porcie `3000`
+- Frontend zostanie uruchomiony na porcie `80`
+- Baza danych MySQL na porcie `3306`
+- Redis na porcie `6379`
+
+### 3. Sprawdzenie działania
+
+- Backend powinien być dostępny pod adresem: `http://localhost:3000`
+- Frontend powinien być dostępny pod adresem: `http://localhost:80`
+
+### 4. Zatrzymanie kontenerów Dockera (prod)
+
+Jeśli chcesz zatrzymać uruchomione kontenery:
+
+docker-compose down
+
+Jeśli chcesz usunąć kontenery i ich dane:
+
+docker-compose down -v
+
+Gotowe! System powinien działać poprawnie w wybranym trybie
