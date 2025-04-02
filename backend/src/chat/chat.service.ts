@@ -101,7 +101,7 @@ export class ChatService {
         const closestParts: typeof parts = [];
 
         for (const part of sortedParts) {
-            if (totalTokens + part.tokens <= 2000) {
+            if (totalTokens + part.tokens <= 1500) {
                 closestParts.push(part);
                 totalTokens += part.tokens;
             } else {
